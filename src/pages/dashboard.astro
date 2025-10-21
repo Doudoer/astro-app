@@ -1,0 +1,1003 @@
+---
+const title = 'Dashboard';
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <style>
+      :root{--bg:#f7f7f8;--card:#ffffff;--text:#111827;--muted:#6b7280;--accent:#111827}
+      body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;background:var(--bg);color:var(--text);margin:0}
+      .navbar{height:64px;background:var(--card);display:flex;align-items:center;justify-content:space-between;padding:0 20px;box-shadow:0 6px 20px rgba(17,24,39,0.06)}
+      .brand{display:flex;align-items:center;gap:12px}
+      .logo{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#111827, #374151);display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+  .navcenter{display:flex;gap:12px;align-items:center}
+  .navcenter a{padding:8px 12px;border-radius:8px;color:var(--muted);text-decoration:none;transition:all 160ms cubic-bezier(.2,.8,.2,1);display:inline-flex;align-items:center;gap:8px}
+  .navcenter a svg{width:16px;height:16px;flex-shrink:0;transition:transform 180ms, fill 180ms, opacity 180ms}
+  .navcenter a:hover{color:var(--text);background:rgba(17,24,39,0.03);transform:translateY(-2px);box-shadow:0 6px 18px rgba(2,6,23,0.04)}
+  .navcenter a:hover svg{transform:scale(1.08);opacity:0.95}
+  .navcenter a:focus{outline:2px solid rgba(17,24,39,0.06);outline-offset:4px}
+  .navcenter a.active{color:var(--text);background:rgba(17,24,39,0.03)}
+  .product-result.active{background:rgba(17,24,39,0.04);}
+  input[disabled], input:disabled{background:#f3f4f6;color:#9ca3af;border-color:#e6e7eb}
+      .profile{position:relative}
+  .profilebutton{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;cursor:pointer}
+  .profilebutton svg{width:16px;height:16px}
+  .dropdown{position:absolute;right:0;top:calc(100% + 8px);background:var(--card);box-shadow:0 10px 30px rgba(2,6,23,0.08);border-radius:10px;overflow:hidden;display:none;min-width:200px}
+  .dropdown a{display:flex;align-items:center;gap:10px;padding:10px 14px;color:var(--text);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
+  .dropdown a svg{width:16px;height:16px;opacity:0.9;transition:transform 160ms, fill 160ms}
+  .dropdown a:hover svg{transform:translateX(4px)}
+  .dropdown a:hover{background:#f3f4f6;color:var(--text)}
+  .dropdown a + a{border-top:1px solid #f1f1f1}
+      .container{max-width:1100px;margin:28px auto;padding:0 20px}
+
+      /* Responsive */
+  .hamburger{display:none;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;cursor:pointer}
+  .mobile-enter{animation: slideFadeIn 220ms ease forwards;z-index:1000}
+  .mobile-leave{animation: slideFadeOut 180ms ease forwards}
+  @keyframes slideFadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes slideFadeOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-6px)}}
+      @media (max-width:800px){
+        .navcenter{display:none}
+        .hamburger{display:flex}
+        .profilebutton{padding:10px}
+        .dropdown{right:8px;left:8px;min-width:auto;border-radius:8px;position:fixed;top:64px;z-index:1200}
+        .dropdown a{font-size:16px;padding:14px}
+      }
+    </style>
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="brand">
+        <div class="logo">CHC</div>
+        <div class="company">CHC App</div>
+      </div>
+      <nav class="navcenter">
+        <a href="#" class="active" data-view="inicio"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 11.5L12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" fill="currentColor"/></svg>Inicio</a>
+        <a href="#" data-view="crear"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Crear documento</a>
+        <a href="#" data-view="documentos"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M7 8h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Documentos</a>
+        <a href="#" data-view="inventario"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7h18M5 7v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Inventario</a>
+        <a href="#" data-view="clientes"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.2"/></svg>Clientes</a>
+      </nav>
+      <div style="display:flex;align-items:center;gap:8px">
+  <div class="hamburger" id="hamburger" role="button" aria-controls="mobileMenu" aria-expanded="false" aria-label="Abrir menú" tabindex="0">☰</div>
+  <div class="profile">
+  <div class="profilebutton" id="profileBtn" role="button" aria-haspopup="true" aria-expanded="false" tabindex="0">Perfil ▾</div>
+        <div class="dropdown" id="profileMenu">
+          <a href="#" id="changePwd"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 15v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M16 11V9a4 4 0 1 0-8 0v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Cambiar contraseña</a>
+          <a href="#" id="createUser"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 14c1.657 0 3 1.343 3 3v1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M8 14a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke="currentColor" stroke-width="1.2"/><path d="M20 8v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Crear nuevos usuarios</a>
+          <a href="#" id="viewUsers"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7h18M5 7v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Ver usuarios</a>
+          <a href="#" id="logout"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 17l5-5-5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12H9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Cerrar sesión</a>
+        </div>
+      </div>
+    </header>
+      <div id="mobileMenu" aria-hidden="true" style="display:none;background:var(--card);box-shadow:0 8px 30px rgba(0,0,0,0.06);padding:8px;border-radius:8px;margin:8px 12px">
+        <nav role="menu" aria-label="Menú principal">
+          <a role="menuitem" href="#" class="mobile-link" data-view="inicio"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 11.5L12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" fill="currentColor"/></svg><span>Inicio</span></a>
+          <a role="menuitem" href="#" class="mobile-link" data-view="crear"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Crear documento</span></a>
+          <a role="menuitem" href="#" class="mobile-link" data-view="documentos"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M7 8h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg><span>Documentos</span></a>
+          <a role="menuitem" href="#" class="mobile-link" data-view="inventario"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7h18M5 7v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Inventario</span></a>
+          <a role="menuitem" href="#" class="mobile-link" data-view="clientes"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.2"/></svg><span>Clientes</span></a>
+        </nav>
+      </div>
+
+    <main class="container">
+      <!-- Views rendered in-place -->
+      <section id="view-inicio" class="view-section" style="background:var(--card);padding:28px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.06)">
+        <h1>Bienvenido al Dashboard</h1>
+        <p id="welcome">Cargando...</p>
+        <div id="stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:18px">
+          <div class="stat-card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06)">
+            <div style="font-size:13px;color:var(--muted)">Productos en catálogo</div>
+            <div id="stat-products" style="font-size:28px;font-weight:700;margin-top:8px">—</div>
+          </div>
+          <div class="stat-card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06)">
+            <div style="font-size:13px;color:var(--muted)">Clientes registrados</div>
+            <div id="stat-clients" style="font-size:28px;font-weight:700;margin-top:8px">—</div>
+          </div>
+          <div class="stat-card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06)">
+            <div style="font-size:13px;color:var(--muted)">Cotizaciones pendientes</div>
+            <div id="stat-quotes" style="font-size:28px;font-weight:700;margin-top:8px">—</div>
+          </div>
+          <div class="stat-card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06)">
+            <div style="font-size:13px;color:var(--muted)">Total ventas (USD)</div>
+            <div id="stat-sales" style="font-size:28px;font-weight:700;margin-top:8px">—</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-crear" class="view-section" style="display:none;background:var(--card);padding:28px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.06)">
+        <h1>Crear documento</h1>
+        <form id="createDocForm">
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:160px">
+              <label for="tipo">Tipo</label>
+              <select id="tipo" name="tipo" style="width:100%;padding:10px;margin-top:6px;border:1px solid #e6e7eb;border-radius:8px">
+                <option value="CT">CT - Cotización</option>
+                <option value="ND">ND - Nota de Débito</option>
+              </select>
+            </div>
+            <div style="flex:2;min-width:220px">
+              <label for="cliente">Cliente</label>
+              <select id="cliente" name="cliente" style="width:100%;padding:10px;margin-top:6px;border:1px solid #e6e7eb;border-radius:8px">
+                <option value="">Cargando clientes...</option>
+              </select>
+            </div>
+            <div style="min-width:160px">
+              <label for="currency">Moneda</label>
+              <select id="currency" name="currency" style="width:100%;padding:10px;margin-top:6px;border:1px solid #e6e7eb;border-radius:8px">
+                <option value="USD">USD</option>
+                <option value="VES">VES</option>
+              </select>
+            </div>
+            <div style="min-width:160px">
+              <label for="exchangeRate">Tasa (BCV)</label>
+              <input id="exchangeRate" name="exchangeRate" type="number" step="0.000001" value="1.0" style="width:100%;padding:10px;margin-top:6px;border:1px solid #e6e7eb;border-radius:8px" />
+              <div style="margin-top:6px;font-size:13px;color:var(--muted)"><span id="bcvRateDisplay" style="margin-left:12px"></span></div>
+            </div>
+          </div>
+
+          <hr style="margin:16px 0" />
+
+          <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap">
+            <div style="flex:1;min-width:240px;position:relative">
+              <label for="productSearch">Buscar producto</label>
+              <input id="productSearch" placeholder="Código o descripción" autocomplete="off" aria-autocomplete="list" aria-controls="productResults" style="width:100%;padding:10px;margin-top:6px;border:1px solid #e6e7eb;border-radius:8px" />
+              <div id="productResults" role="listbox" aria-label="Resultados de productos" style="display:none;position:absolute;left:0;right:0;top:100%;background:var(--card);box-shadow:0 8px 24px rgba(2,6,23,0.12);border-radius:8px;margin-top:8px;z-index:40;max-height:260px;overflow:auto;padding:6px"></div>
+            </div>
+            <div style="width:120px">
+              <label for="qty">Cantidad</label>
+              <input id="qty" type="number" step="0.01" value="1" style="width:100%;padding:10px;margin-top:6px;border:1px solid #e6e7eb;border-radius:8px" />
+            </div>
+            <div style="width:140px">
+              <label for="unitPrice">P. Unit (USD)</label>
+              <input id="unitPrice" type="number" step="0.0001" value="0.00" style="width:100%;padding:10px;margin-top:6px;border:1px solid #e6e7eb;border-radius:8px" />
+            </div>
+            <div>
+              <button type="button" id="addItem" style="background:#111827;color:#fff;padding:10px 12px;border-radius:8px;border:0">Agregar</button>
+            </div>
+          </div>
+
+          <table id="itemsTable" style="width:100%;margin-top:12px;border-collapse:collapse">
+            <thead>
+              <tr style="text-align:left;border-bottom:1px solid #eef2f6"><th>Producto</th><th>Cantidad</th><th>P.Unit (USD)</th><th>Descuento</th><th>Total (USD)</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+
+          <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:18px;align-items:center">
+            <div style="text-align:right">
+              <div id="usdTotals">
+                <div>Subtotal USD: <span id="subtotal">0.00</span></div>
+                <div>IVA 16%: <span id="tax">0.00</span></div>
+                <div style="font-weight:700">Total USD: <span id="total">0.00</span></div>
+              </div>
+              <div id="bsfTotals" style="display:none">
+                <div>Subtotal Bs.F: <span id="subtotalBsf">0.00</span></div>
+                <div>IVA Bs.F: <span id="taxBsf">0.00</span></div>
+                <div style="font-weight:700">Total Bs.F: <span id="totalBsf">0.00</span></div>
+              </div>
+              <div id="ivaNote" style="color:var(--muted);margin-top:8px;display:none">Estos precios no incluyen IVA</div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;display:flex;gap:10px">
+            <button type="submit" class="btn-primary" style="background:#10b981;color:#fff;padding:10px 14px;border-radius:8px;border:0">Guardar documento</button>
+            <button type="button" id="cancelCreate" class="btn-secondary" style="background:#f3f4f6;padding:10px 14px;border-radius:8px;border:0">Cancelar</button>
+          </div>
+          <div id="createResult" aria-live="polite" style="margin-top:12px"></div>
+        </form>
+      </section>
+
+      <section id="view-documentos" class="view-section" style="display:none;background:var(--card);padding:28px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.06)">
+        <h1>Documentos</h1>
+        <div style="margin-top:12px">
+          <table id="docsTable" style="width:100%;border-collapse:collapse">
+            <thead><tr style="text-align:left;border-bottom:1px solid #eef2f6"><th>#</th><th>Tipo</th><th>Número</th><th>Cliente</th><th>Total (USD)</th><th>Fecha</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <!-- modal sencillo -->
+        <div id="docModal" role="dialog" aria-hidden="true" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;padding:20px">
+          <div style="background:var(--card);max-width:760px;width:100%;padding:18px;border-radius:10px;box-shadow:0 10px 40px rgba(2,6,23,0.2);position:relative">
+            <button id="closeDocModal" style="position:absolute;right:10px;top:10px">Cerrar</button>
+            <h2 id="modalDocNumber">Documento</h2>
+            <div id="modalBody">Cargando...</div>
+            <div style="margin-top:12px;display:flex;gap:10px;justify-content:flex-end">
+              <button id="deleteDoc" style="background:#ef4444;color:#fff;padding:8px 12px;border-radius:8px;border:0">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-inventario" class="view-section" style="display:none;background:var(--card);padding:28px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.06)">
+        <h1>Inventario</h1>
+        <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+          <div style="flex:1;min-width:180px">
+            <label for="newCode">Código</label>
+            <input id="newCode" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" />
+          </div>
+          <div style="flex:2;min-width:220px">
+            <label for="newDesc">Descripción</label>
+            <input id="newDesc" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" />
+          </div>
+          <div style="width:140px">
+            <label for="newPrice">Precio USD</label>
+            <input id="newPrice" type="number" step="0.01" value="0.00" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" />
+          </div>
+          <div><button id="addProduct" style="background:#10b981;color:#fff;padding:10px 12px;border-radius:8px;border:0">Agregar producto</button></div>
+        </div>
+
+        <table id="productsTable" style="width:100%;margin-top:12px;border-collapse:collapse">
+          <thead><tr style="text-align:left;border-bottom:1px solid #eef2f6"><th>ID</th><th>Código</th><th>Descripción</th><th>Precio USD</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <section id="view-clientes" class="view-section" style="display:none;background:var(--card);padding:28px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.06)">
+        <h1>Clientes</h1>
+        <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+          <div style="flex:2;min-width:220px">
+            <label for="clientName">Nombre</label>
+            <input id="clientName" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" />
+          </div>
+          <div style="width:160px">
+            <label for="clientRif">RIF/CI</label>
+            <input id="clientRif" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" />
+          </div>
+          <div style="width:160px">
+            <label for="clientPhone">Teléfono</label>
+            <input id="clientPhone" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" />
+          </div>
+          <div style="flex:1;min-width:220px">
+            <label for="clientAddress">Dirección</label>
+            <input id="clientAddress" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" />
+          </div>
+          <div><button id="addClient" style="background:#10b981;color:#fff;padding:10px 12px;border-radius:8px;border:0">Agregar cliente</button></div>
+        </div>
+
+        <table id="clientsTable" style="width:100%;margin-top:12px;border-collapse:collapse">
+          <thead><tr style="text-align:left;border-bottom:1px solid #eef2f6"><th>ID</th><th>Nombre</th><th>RIF/CI</th><th>Teléfono</th><th>Dirección</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </main>
+
+  <script>
+      const profileBtn = document.getElementById('profileBtn');
+      const profileMenu = document.getElementById('profileMenu');
+        profileBtn.addEventListener('click', ()=> {
+          const open = profileMenu.style.display !== 'block';
+          profileMenu.style.display = open ? 'block' : 'none';
+          profileBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        profileBtn.addEventListener('keydown',(e)=>{ if(e.key === 'Enter' || e.key === ' ') profileBtn.click(); });
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+    if(hamburger){
+      hamburger.addEventListener('click', ()=>{
+        const open = mobileMenu.style.display !== 'block';
+        if(open){
+          mobileMenu.style.display = 'block';
+          mobileMenu.classList.remove('mobile-leave');
+          mobileMenu.classList.add('mobile-enter');
+          mobileMenu.setAttribute('aria-hidden','false');
+          hamburger.setAttribute('aria-expanded','true');
+          hamburger.setAttribute('aria-label','Cerrar menú');
+          // ensure profile dropdown closed when mobile menu opens
+          profileMenu.style.display = 'none';
+          profileBtn.setAttribute('aria-expanded','false');
+            // focus first menu item for keyboard users
+            const first = mobileMenu.querySelector('[role="menuitem"]');
+            if(first) first.focus();
+        } else {
+          mobileMenu.classList.remove('mobile-enter');
+          mobileMenu.classList.add('mobile-leave');
+          hamburger.setAttribute('aria-expanded','false');
+          mobileMenu.setAttribute('aria-hidden','true');
+          hamburger.setAttribute('aria-label','Abrir menú');
+          setTimeout(()=> mobileMenu.style.display = 'none', 190);
+        }
+      });
+      hamburger.addEventListener('keydown',(e)=>{ if(e.key === 'Enter' || e.key === ' ') hamburger.click(); });
+    }
+
+  // Close mobile menu when selecting an item and make links keyboard/touch friendly
+  const mobileLinks = document.querySelectorAll('#mobileMenu [role="menuitem"]');
+  mobileLinks.forEach(link => {
+      // make focus styles available
+      link.setAttribute('tabindex','0');
+      link.addEventListener('click', ()=>{
+        // close mobile menu on selection (small delay to allow navigation)
+        mobileMenu.classList.remove('mobile-enter');
+        mobileMenu.classList.add('mobile-leave');
+        mobileMenu.setAttribute('aria-hidden','true');
+        hamburger.setAttribute('aria-expanded','false');
+        hamburger.setAttribute('aria-label','Abrir menú');
+        setTimeout(()=> mobileMenu.style.display = 'none', 190);
+      });
+      link.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' ') link.click(); });
+    });
+
+    // In-page view switching
+    const navLinks = document.querySelectorAll('.navcenter [data-view]');
+    function showView(name){
+      // hide all
+      document.querySelectorAll('.view-section').forEach(s=> s.style.display = 'none');
+      const el = document.getElementById('view-' + name);
+      if(el) el.style.display = '';
+      // update active classes
+      navLinks.forEach(a=> a.classList.toggle('active', a.dataset.view === name));
+      mobileLinks.forEach(m=> m.classList.toggle('active', m.dataset.view === name));
+      // update hash for back/forward support
+      history.replaceState(null,'', '#'+name);
+    }
+
+    navLinks.forEach(a=>{
+      a.addEventListener('click', (e)=>{ e.preventDefault(); showView(a.dataset.view); });
+      a.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') a.click(); });
+    });
+
+    mobileLinks.forEach(m => {
+      m.addEventListener('click', (e)=>{
+        // existing mobile close behavior
+        mobileMenu.classList.remove('mobile-enter');
+        mobileMenu.classList.add('mobile-leave');
+        mobileMenu.setAttribute('aria-hidden','true');
+        hamburger.setAttribute('aria-expanded','false');
+        hamburger.setAttribute('aria-label','Abrir menú');
+        setTimeout(()=> mobileMenu.style.display = 'none', 190);
+        // show view
+        const v = m.dataset.view;
+        if(v) showView(v);
+      });
+    });
+
+    // show view from hash on load
+    const initialHash = location.hash.replace('#','');
+    if(initialHash) showView(initialHash);
+
+      async function loadSession(){
+        const res = await fetch('/api/session');
+        const data = await res.json();
+        if(data.ok){
+          document.getElementById('welcome').textContent = `Hola, ${data.usuario} — rol: ${data.role}`;
+          // role based UI
+          if(data.role !== 'admin'){
+            document.getElementById('createUser').style.display = 'none';
+            document.getElementById('viewUsers').style.display = 'none';
+          }
+        } else {
+          // not logged in, redirect to home
+          window.location.href = '/';
+        }
+      }
+
+      document.getElementById('logout').addEventListener('click', async (e)=>{
+        e.preventDefault();
+        await fetch('/api/logout', { method:'POST' });
+        window.location.href = '/';
+      });
+
+      // profile actions
+      document.getElementById('changePwd').addEventListener('click', (e)=>{ e.preventDefault(); alert('Funcionalidad no implementada aún'); });
+      document.getElementById('createUser').addEventListener('click', (e)=>{ e.preventDefault(); alert('Funcionalidad no implementada aún'); });
+      document.getElementById('viewUsers').addEventListener('click', (e)=>{ e.preventDefault(); alert('Funcionalidad no implementada aún'); });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e)=>{
+        if(!profileBtn.contains(e.target) && !profileMenu.contains(e.target)) profileMenu.style.display = 'none';
+      });
+
+      loadSession();
+
+      // Simple toast helper injected to window for inline use
+      if(!window.showToast){
+        window.showToast = function(message, type='info', timeout=3000){
+          let root = document.getElementById('toast-root');
+          if(!root){ root = document.createElement('div'); root.id='toast-root'; root.style.position='fixed'; root.style.right='18px'; root.style.top='18px'; root.style.zIndex='9999'; document.body.appendChild(root); }
+          const el = document.createElement('div'); el.className = 'toast '+type; el.textContent = message; el.style.marginTop='8px'; el.style.padding='10px 14px'; el.style.borderRadius='8px'; el.style.color='#fff'; el.style.boxShadow='0 8px 24px rgba(2,6,23,0.12)'; el.style.opacity='0'; el.style.transition='opacity 220ms, transform 220ms'; el.style.transform='translateY(-6px)';
+          if(type==='success') el.style.background='#10b981'; else if(type==='error') el.style.background='#ef4444'; else if(type==='warning') el.style.background='#f59e0b'; else el.style.background='#2563eb';
+          root.appendChild(el); requestAnimationFrame(()=>{ el.style.opacity='1'; el.style.transform='translateY(0)'; }); setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateY(-6px)'; setTimeout(()=> el.remove(),260); }, timeout);
+          return el;
+        }
+      }
+
+    // --- Script para crear documento: poblar clientes/productos, agregar items y enviar ---
+    (function(){
+      const clienteSel = document.getElementById('cliente');
+      const productSearch = document.getElementById('productSearch');
+      const qtyInput = document.getElementById('qty');
+      const unitPriceInput = document.getElementById('unitPrice');
+      const addItemBtn = document.getElementById('addItem');
+      const itemsTbody = document.querySelector('#itemsTable tbody');
+      const subtotalEl = document.getElementById('subtotal');
+      const taxEl = document.getElementById('tax');
+      const totalEl = document.getElementById('total');
+      const form = document.getElementById('createDocForm');
+      const tipoSel = document.getElementById('tipo');
+      const currencySel = document.getElementById('currency');
+  const exchangeRateInput = document.getElementById('exchangeRate');
+  const bcvRateDisplay = document.getElementById('bcvRateDisplay');
+
+  let productsCache = [];
+  let lastBcvValue = null;
+
+      // Fetch dashboard stats and populate stat cards
+      async function loadDashboardStats(){
+        try{
+          const res = await fetch('/api/dashboard');
+          const j = await res.json();
+          if(j.ok && j.data){
+            document.getElementById('stat-products').textContent = j.data.productsCount;
+            document.getElementById('stat-clients').textContent = j.data.clientsCount;
+            document.getElementById('stat-quotes').textContent = j.data.pendingQuotesCount;
+            document.getElementById('stat-sales').textContent = (Number(j.data.totalSalesUsd) || 0).toFixed(2);
+          } else {
+            console.warn('dashboard API error', j);
+          }
+        }catch(err){ console.error('Error loading dashboard stats', err); }
+      }
+      loadDashboardStats();
+      // Auto-refresh every 30s, but pause when page is hidden to save resources
+      const DASH_REFRESH_MS = 30000;
+      let dashRefreshHandle = null;
+      function startDashAutoRefresh(){
+        if(dashRefreshHandle) clearInterval(dashRefreshHandle);
+        dashRefreshHandle = setInterval(loadDashboardStats, DASH_REFRESH_MS);
+      }
+      function stopDashAutoRefresh(){ if(dashRefreshHandle){ clearInterval(dashRefreshHandle); dashRefreshHandle = null; } }
+      document.addEventListener('visibilitychange', ()=>{
+        if(document.hidden) stopDashAutoRefresh(); else { loadDashboardStats(); startDashAutoRefresh(); }
+      });
+      startDashAutoRefresh();
+
+      async function fetchClients(){
+        try{
+          const r = await fetch('/api/clientes');
+          const j = await r.json();
+          clienteSel.innerHTML = '';
+          if(j.ok && Array.isArray(j.data)){
+            clienteSel.appendChild(new Option('-- Seleccione --',''));
+            j.data.forEach(c => clienteSel.appendChild(new Option(c.name, c.id)));
+          } else {
+            clienteSel.appendChild(new Option('Error cargando clientes',''));
+          }
+        }catch(err){
+          clienteSel.innerHTML = '';
+          clienteSel.appendChild(new Option('Error conectando',''));
+        }
+      }
+
+      async function fetchProducts(){
+        try{
+          const r = await fetch('/api/productos');
+          const j = await r.json();
+          productsCache = j.ok ? j.data : [];
+        }catch(e){ productsCache = []; }
+      }
+
+      // Debounce helper
+      function debounce(fn, wait=250){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), wait); }; }
+
+      // Disable exchange rate input when currency is USD
+      async function fetchAndSetBcv(){
+        try{
+          const r = await fetch('/api/bcv');
+          const j = await r.json();
+          if(j.ok && j.price){
+            exchangeRateInput.value = String(j.price);
+            lastBcvValue = Number(j.price);
+            exchangeRateInput.disabled = true;
+            if(bcvRateDisplay) bcvRateDisplay.textContent = `BCV: ${exchangeRateInput.value}`;
+            recalc(); refreshRows();
+            return true;
+          }
+        }catch(err){ }
+        return false;
+      }
+
+      function updateExchangeRateState(){
+        const cur = (currencySel.value||'').toUpperCase();
+        if(cur === 'USD'){
+          exchangeRateInput.value = '1.0';
+          exchangeRateInput.disabled = true;
+          if(bcvRateDisplay) bcvRateDisplay.textContent = '';
+        } else {
+          exchangeRateInput.disabled = false;
+          // if VES, try to auto-fill from BCV proxy
+          if(cur === 'VES'){
+            // automatically fetch and set BCV rate
+            fetchAndSetBcv();
+          }
+        }
+        // update BCV display
+        if(bcvRateDisplay){
+          if(currencySel.value === 'VES' && lastBcvValue != null){
+            bcvRateDisplay.textContent = `BCV: ${String(lastBcvValue)}`;
+            exchangeRateInput.disabled = true;
+          } else {
+            bcvRateDisplay.textContent = '';
+            if(currencySel.value !== 'USD') exchangeRateInput.disabled = false;
+          }
+        }
+      }
+      currencySel.addEventListener('change', updateExchangeRateState);
+      // no checkbox: BCV rate is fetched automatically when currency is VES
+      // init state
+      updateExchangeRateState();
+  // ensure totals update when currency or tipo change
+  currencySel.addEventListener('change', ()=>{ recalc(); refreshRows(); });
+  tipoSel.addEventListener('change', ()=>{ recalc(); });
+
+      const resultsRoot = document.getElementById('productResults');
+      function renderProductResults(list){
+        resultsRoot.innerHTML = '';
+        if(!list || list.length === 0){ resultsRoot.style.display = 'none'; return; }
+        list.forEach((p, idx) => {
+          const el = document.createElement('div');
+          el.setAttribute('role','option');
+          el.className = 'product-result';
+          el.style.padding = '8px';
+          el.style.borderRadius = '6px';
+          el.style.cursor = 'pointer';
+          el.dataset.idx = idx;
+          el.dataset.id = p.id;
+          el.innerHTML = `<div style="font-weight:600">${p.product_code} — ${p.description}</div><div style="font-size:12px;color:var(--muted)">Precio USD: ${Number(p.price_usd).toFixed(2)}</div>`;
+          el.addEventListener('click', ()=> selectProductFromResult(p));
+          resultsRoot.appendChild(el);
+        });
+        resultsRoot.style.display = 'block';
+      }
+
+      function findProductsQuery(q){
+        const s = String(q||'').toLowerCase().trim();
+        if(!s) return [];
+        return productsCache.filter(p => p.product_code.toLowerCase().includes(s) || p.description.toLowerCase().includes(s)).slice(0,8);
+      }
+
+      function selectProductFromResult(p){
+        // fill productSearch with code - description, set selection data, prefill unit price
+        productSearch.value = `${p.product_code} - ${p.description}`;
+        productSearch.dataset.selectedId = p.id;
+        unitPriceInput.value = Number(p.price_usd).toFixed(4);
+        resultsRoot.style.display = 'none';
+        qtyInput.focus();
+      }
+
+      const onProductInput = debounce(async function(e){
+        const q = productSearch.value.trim();
+        if(!q){ resultsRoot.style.display = 'none'; productSearch.dataset.selectedId = ''; return; }
+        // ensure cache
+        if(productsCache.length === 0) await fetchProducts();
+        const list = findProductsQuery(q);
+        renderProductResults(list);
+      }, 200);
+
+      productSearch.addEventListener('input', onProductInput);
+      productSearch.addEventListener('keydown', (e)=>{
+        const visible = resultsRoot.style.display === 'block';
+        if(!visible) return;
+        const items = Array.from(resultsRoot.children);
+        const active = resultsRoot.querySelector('.active');
+        let idx = active ? items.indexOf(active) : -1;
+        if(e.key === 'ArrowDown'){
+          e.preventDefault(); idx = Math.min(items.length-1, idx+1); items.forEach(it=>it.classList.remove('active')); if(items[idx]) items[idx].classList.add('active');
+        } else if(e.key === 'ArrowUp'){
+          e.preventDefault(); idx = Math.max(0, idx-1); items.forEach(it=>it.classList.remove('active')); if(items[idx]) items[idx].classList.add('active');
+        } else if(e.key === 'Enter'){
+          e.preventDefault(); if(items[idx]){
+            const id = items[idx].dataset.id; const p = productsCache.find(x=>String(x.id)===String(id)); if(p) selectProductFromResult(p);
+          }
+        } else if(e.key === 'Escape'){
+          resultsRoot.style.display = 'none';
+        }
+      });
+
+      // click outside closes results
+      document.addEventListener('click', (ev)=>{ if(!ev.target.closest('#productResults') && ev.target !== productSearch) resultsRoot.style.display = 'none'; });
+
+      function findProduct(query){
+        const q = String(query||'').toLowerCase();
+        return productsCache.find(p => p.product_code.toLowerCase() === q || p.description.toLowerCase().includes(q));
+      }
+
+      function recalc(){
+        let subtotal = 0;
+        itemsTbody.querySelectorAll('tr').forEach(tr => {
+          const total = parseFloat(tr.dataset.lineTotal || '0');
+          subtotal += total;
+        });
+        const currency = (currencySel.value||'').toUpperCase();
+        let tax = 0;
+        if(currency === 'USD'){
+          // no IVA when payment is in USD
+          tax = 0;
+        } else {
+          tax = +(subtotal * 0.16).toFixed(2);
+        }
+  const total = +(subtotal + tax).toFixed(2);
+  subtotalEl.textContent = subtotal.toFixed(2);
+  taxEl.textContent = tax.toFixed(2);
+  totalEl.textContent = total.toFixed(2);
+  // BSF equivalents
+  const ex = Number(exchangeRateInput.value) || 1.0;
+  const subtotalBsfEl = document.getElementById('subtotalBsf');
+  const taxBsfEl = document.getElementById('taxBsf');
+  const totalBsfEl = document.getElementById('totalBsf');
+  if(subtotalBsfEl){ subtotalBsfEl.textContent = (subtotal * ex).toFixed(2); }
+  if(taxBsfEl){ taxBsfEl.textContent = (tax * ex).toFixed(2); }
+  if(totalBsfEl){ totalBsfEl.textContent = (total * ex).toFixed(2); }
+        // show IVA note on quotes/notes when currency is USD
+        const ivaNoteEl = document.getElementById('ivaNote');
+        const usdTotals = document.getElementById('usdTotals');
+        const bsfTotals = document.getElementById('bsfTotals');
+        if(usdTotals && bsfTotals){
+          if(currency === 'USD'){
+            usdTotals.style.display = 'block';
+            bsfTotals.style.display = 'none';
+          } else {
+            usdTotals.style.display = 'none';
+            bsfTotals.style.display = 'block';
+          }
+        }
+        if(ivaNoteEl){
+          if(currency === 'USD' && tipoSel.value === 'CT'){
+            ivaNoteEl.style.display = 'block';
+          } else {
+            ivaNoteEl.style.display = 'none';
+          }
+        }
+        // update items table headers to reflect currency
+        const unitHeader = document.querySelector('#itemsTable thead th:nth-child(3)');
+        const totalHeader = document.querySelector('#itemsTable thead th:nth-child(5)');
+        if(unitHeader) unitHeader.textContent = currency === 'USD' ? 'P.Unit (USD)' : 'P.Unit (Bs.F)';
+        if(totalHeader) totalHeader.textContent = currency === 'USD' ? 'Total (USD)' : 'Total (Bs.F)';
+      }
+
+      function createRow(item){
+        const tr = document.createElement('tr');
+        // store USD values for later conversions
+        tr.dataset.unitUsd = Number(item.unit_price_usd).toFixed(4);
+        tr.dataset.qty = Number(item.quantity);
+        tr.dataset.totalUsd = Number(item.total).toFixed(2);
+        tr.dataset.lineTotal = item.total.toFixed(2);
+        const currency = (currencySel.value||'').toUpperCase();
+        const ex = Number(exchangeRateInput.value) || 1.0;
+        let unitDisplay = tr.dataset.unitUsd;
+        let totalDisplay = tr.dataset.totalUsd;
+        if(currency !== 'USD'){
+          unitDisplay = (Number(tr.dataset.unitUsd) * ex).toFixed(2);
+          totalDisplay = (Number(tr.dataset.totalUsd) * ex).toFixed(2);
+        }
+        tr.innerHTML = `<td>${item.description || ''}</td><td>${item.quantity}</td><td>${unitDisplay}</td><td>${Number(item.discount||0).toFixed(2)}</td><td>${totalDisplay}</td><td><button type="button" class="removeItem">Eliminar</button></td>`;
+  tr.querySelector('.removeItem').addEventListener('click', ()=>{ tr.remove(); recalc(); refreshRows(); });
+        itemsTbody.appendChild(tr);
+      }
+
+      function refreshRows(){
+        const currency = (currencySel.value||'').toUpperCase();
+        const ex = Number(exchangeRateInput.value) || 1.0;
+        Array.from(itemsTbody.querySelectorAll('tr')).forEach(tr => {
+          const unitUsd = Number(tr.dataset.unitUsd || '0');
+          const qty = Number(tr.dataset.qty || '0');
+          const totalUsd = Number(tr.dataset.totalUsd || '0');
+          const unitDisplay = currency === 'USD' ? unitUsd.toFixed(4) : (unitUsd * ex).toFixed(2);
+          const totalDisplay = currency === 'USD' ? totalUsd.toFixed(2) : (totalUsd * ex).toFixed(2);
+          // update cells: unit is 3rd cell (index 2), total is 5th cell (index 4)
+          const cols = tr.children;
+          if(cols[2]) cols[2].textContent = unitDisplay;
+          if(cols[4]) cols[4].textContent = totalDisplay;
+        });
+      }
+
+  addItemBtn.addEventListener('click', ()=>{
+    const q = parseFloat(qtyInput.value || '0');
+    const up = parseFloat(unitPriceInput.value || '0');
+  if(q <= 0 || up <= 0) return (window.showToast || (()=>alert('Cantidad y precio deben ser mayores que cero')))('Cantidad y precio deben ser mayores que cero','error');
+    const selectedId = productSearch.dataset.selectedId;
+    let found = null;
+    if(selectedId){ found = productsCache.find(p => String(p.id) === String(selectedId)); }
+    if(!found) found = findProduct(productSearch.value.trim());
+    const desc = found ? `${found.product_code} - ${found.description}` : productSearch.value.trim();
+    const total = +(q * up).toFixed(2);
+    const item = { product_id: found ? found.id : null, description: desc, quantity: q, unit_price_usd: up, discount: 0, total };
+  createRow(item);
+  recalc();
+  refreshRows();
+    // clear product fields and selection
+    productSearch.value = '';
+    productSearch.dataset.selectedId = '';
+    qtyInput.value = '1';
+    unitPriceInput.value = '0.00';
+  });
+
+      form.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const items = [];
+        itemsTbody.querySelectorAll('tr').forEach(tr => {
+          const cols = tr.children;
+          const description = cols[0].textContent.trim();
+          const quantity = parseFloat(cols[1].textContent.trim());
+          // read unit price in USD from data attribute to avoid reading Bs.F displayed value
+          const unit_price_usd = parseFloat(tr.dataset.unitUsd || cols[2].textContent.trim());
+          const discount = parseFloat(cols[3].textContent.trim()) || 0;
+          const total = parseFloat(cols[4].textContent.trim()) || 0;
+          items.push({ product_id: null, description, quantity, unit_price_usd, discount });
+        });
+  if(items.length === 0) return (window.showToast || (()=>alert('Agregue al menos un item')))('Agregue al menos un item','warning');
+
+        const payload = {
+          tipo: tipoSel.value || 'CT',
+          cliente_id: clienteSel.value || null,
+          currency: currencySel.value || 'USD',
+          exchange_rate: parseFloat(exchangeRateInput.value) || 1.0,
+          bcv_rate: (currencySel.value === 'VES') ? (lastBcvValue != null ? lastBcvValue : parseFloat(exchangeRateInput.value) || null) : null,
+          items
+        };
+
+        try{
+          const res = await fetch('/api/documentos', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(payload) });
+          const j = await res.json();
+          if(j.ok){
+            (window.showToast || (()=>alert()))(`Documento guardado: ${j.doc_number}`,'success');
+            // limpiar formulario
+            itemsTbody.innerHTML = '';
+            recalc();
+            showView('documentos');
+          } else {
+            (window.showToast || (()=>alert()))(`Error: ${j.error || 'Error al guardar'}`,'error');
+          }
+        }catch(err){
+          document.getElementById('createResult').textContent = `Error: ${err.message}`;
+        }
+      });
+
+      // Initialize caches
+      fetchClients();
+      fetchProducts();
+    })();
+
+    // --- Inventario: list, create, edit, delete ---
+    (function(){
+      const productsTbody = document.querySelector('#productsTable tbody');
+      const addBtn = document.getElementById('addProduct');
+      const newCode = document.getElementById('newCode');
+      const newDesc = document.getElementById('newDesc');
+      const newPrice = document.getElementById('newPrice');
+      const newStock = document.getElementById('newStock');
+
+      async function loadProducts(){
+        try{
+          const r = await fetch('/api/productos');
+          const j = await r.json();
+          productsTbody.innerHTML = '';
+          if(j.ok && Array.isArray(j.data)){
+            j.data.forEach(p => {
+              const tr = document.createElement('tr');
+              tr.innerHTML = `<td>${p.id}</td><td>${p.product_code}</td><td>${p.description}</td><td>${Number(p.price_usd).toFixed(2)}</td><td><button class="editProd" data-id="${p.id}">Editar</button> <button class="delProd" data-id="${p.id}">Eliminar</button></td>`;
+              productsTbody.appendChild(tr);
+            });
+            productsTbody.querySelectorAll('.delProd').forEach(b=> b.addEventListener('click', async ()=>{
+              const id=b.dataset.id;
+              if(!confirm('Eliminar producto?')) return;
+              try{ const r = await fetch(`/api/productos/${id}`, { method:'DELETE' }); const j=await r.json(); if(j.ok){ window.showToast('Producto eliminado','success'); loadProducts(); } else window.showToast('Error al eliminar','error'); }catch(e){ window.showToast('Error al eliminar','error'); }
+            }));
+            // inline edit handler
+            productsTbody.querySelectorAll('.editProd').forEach(b=> b.addEventListener('click', ()=>{
+              const id = b.dataset.id; const row = b.closest('tr'); if(row.dataset.editing) return; row.dataset.editing = '1';
+              const code = row.children[1].textContent; const desc = row.children[2].textContent; const price = row.children[3].textContent;
+              row.innerHTML = `<td>${id}</td><td><input class="inline-code" value="${code}" style="width:140px"/></td><td><input class="inline-desc" value="${desc}" style="width:100%"/></td><td><input class="inline-price" value="${price}" style="width:100px"/></td><td><button class="saveProd">Guardar</button> <button class="cancelProd">Cancelar</button></td>`;
+              row.querySelector('.cancelProd').addEventListener('click', ()=> loadProducts());
+              row.querySelector('.saveProd').addEventListener('click', async ()=>{
+                const nc = row.querySelector('.inline-code').value.trim(); const nd = row.querySelector('.inline-desc').value.trim(); const np = parseFloat(row.querySelector('.inline-price').value)||0;
+                try{ const r = await fetch(`/api/productos/${id}`, { method:'PUT', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ product_code: nc, description: nd, price_usd: np }) }); const j = await r.json(); if(j.ok){ window.showToast('Producto actualizado','success'); loadProducts(); } else window.showToast('Error al actualizar','error'); }catch(e){ window.showToast('Error al actualizar','error'); }
+              });
+            }));
+          } else {
+            productsTbody.innerHTML = '<tr><td colspan="6">No hay productos</td></tr>';
+          }
+        }catch(err){ productsTbody.innerHTML = '<tr><td colspan="6">Error al cargar productos</td></tr>'; }
+      }
+
+      addBtn.addEventListener('click', async ()=>{
+        const payload = { description: newDesc.value.trim(), price_usd: parseFloat(newPrice.value)||0 };
+        if(!payload.description) return window.showToast('Descripción requerida','warning');
+        try{
+          const r = await fetch('/api/productos', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(payload) });
+          const j = await r.json();
+          if(j.ok){ newDesc.value=''; newPrice.value='0.00'; window.showToast(`Producto creado: ${j.product_code}`,'success'); loadProducts(); }
+          else window.showToast('Error: ' + (j.error||''),'error');
+        }catch(err){ window.showToast('Error al crear producto','error'); }
+      });
+
+      // load when entering view
+      navLinks.forEach(a=>{ if(a.dataset.view === 'inventario') a.addEventListener('click', ()=> setTimeout(loadProducts, 150)); });
+      if(location.hash.replace('#','') === 'inventario') loadProducts();
+    })();
+
+    // --- Clientes CRUD ---
+    (function(){
+      const clientsTbody = document.querySelector('#clientsTable tbody');
+      const addClientBtn = document.getElementById('addClient');
+      const clientName = document.getElementById('clientName');
+      const clientRif = document.getElementById('clientRif');
+      const clientPhone = document.getElementById('clientPhone');
+      const clientAddress = document.getElementById('clientAddress');
+
+      async function loadClients(){
+        try{
+          const r = await fetch('/api/clientes');
+          const j = await r.json();
+          clientsTbody.innerHTML = '';
+          if(j.ok && Array.isArray(j.data)){
+            j.data.forEach(c => {
+              const tr = document.createElement('tr');
+              tr.innerHTML = `<td>${c.id}</td><td>${c.name}</td><td>${c.rif_ci||''}</td><td>${c.phone||''}</td><td>${c.address||''}</td><td><button class="editClient" data-id="${c.id}">Editar</button> <button class="delClient" data-id="${c.id}">Eliminar</button></td>`;
+              clientsTbody.appendChild(tr);
+            });
+            clientsTbody.querySelectorAll('.delClient').forEach(b=> b.addEventListener('click', async ()=>{
+              const id = b.dataset.id;
+              if(!confirm('Eliminar cliente?')) return;
+              try{ const r = await fetch(`/api/clientes/${id}`, { method:'DELETE' }); const j = await r.json(); if(j.ok){ window.showToast('Cliente eliminado','success'); loadClients(); } else window.showToast('Error al eliminar','error'); }catch(e){ window.showToast('Error al eliminar','error'); }
+            }));
+            clientsTbody.querySelectorAll('.editClient').forEach(b=> b.addEventListener('click', ()=>{
+              const id = b.dataset.id; const row = b.closest('tr'); if(row.dataset.editing) return; row.dataset.editing='1';
+              const name = row.children[1].textContent; const rif = row.children[2].textContent; const phone = row.children[3].textContent; const addr = row.children[4].textContent;
+              row.innerHTML = `<td>${id}</td><td><input class="inline-name" value="${name}" style="width:220px"/></td><td><input class="inline-rif" value="${rif}" style="width:120px"/></td><td><input class="inline-phone" value="${phone}" style="width:120px"/></td><td><input class="inline-addr" value="${addr}" style="width:100%"/></td><td><button class="saveClient">Guardar</button> <button class="cancelClient">Cancelar</button></td>`;
+              row.querySelector('.cancelClient').addEventListener('click', ()=> loadClients());
+              row.querySelector('.saveClient').addEventListener('click', async ()=>{
+                const nn = row.querySelector('.inline-name').value.trim(); const nr = row.querySelector('.inline-rif').value.trim(); const np = row.querySelector('.inline-phone').value.trim(); const na = row.querySelector('.inline-addr').value.trim();
+                try{ const r = await fetch(`/api/clientes/${id}`, { method:'PUT', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ name: nn, rif_ci: nr, phone: np, address: na }) }); const j = await r.json(); if(j.ok){ window.showToast('Cliente actualizado','success'); loadClients(); } else window.showToast('Error al actualizar','error'); }catch(e){ window.showToast('Error al actualizar','error'); }
+              });
+            }));
+          } else {
+            clientsTbody.innerHTML = '<tr><td colspan="6">No hay clientes</td></tr>';
+          }
+        }catch(err){ clientsTbody.innerHTML = '<tr><td colspan="6">Error al cargar clientes</td></tr>'; }
+      }
+
+      addClientBtn.addEventListener('click', async ()=>{
+        const payload = { name: clientName.value.trim(), rif_ci: clientRif.value.trim(), phone: clientPhone.value.trim(), address: clientAddress.value.trim() };
+        if(!payload.name) return alert('Nombre requerido');
+        try{
+          const r = await fetch('/api/clientes', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(payload) });
+          const j = await r.json();
+          if(j.ok){ clientName.value=''; clientRif.value=''; clientPhone.value=''; clientAddress.value=''; loadClients(); }
+          else alert('Error: ' + (j.error||''));
+        }catch(err){ alert('Error al crear cliente'); }
+      });
+
+      // populate when entering view
+      navLinks.forEach(a=>{ if(a.dataset.view === 'clientes') a.addEventListener('click', ()=> setTimeout(loadClients, 150)); });
+      if(location.hash.replace('#','') === 'clientes') loadClients();
+    })();
+
+    // --- Documentos list & detail handling ---
+    (function(){
+      const docsTableBody = document.querySelector('#docsTable tbody');
+      const docModal = document.getElementById('docModal');
+      const modalBody = document.getElementById('modalBody');
+      const modalDocNumber = document.getElementById('modalDocNumber');
+      const closeDocModal = document.getElementById('closeDocModal');
+      const deleteDocBtn = document.getElementById('deleteDoc');
+      let currentDocId = null;
+
+      async function loadDocs(){
+        try{
+          const r = await fetch('/api/documentos');
+          const j = await r.json();
+          docsTableBody.innerHTML = '';
+          if(j.ok && Array.isArray(j.data)){
+            j.data.forEach(d => {
+              const tr = document.createElement('tr');
+              const bcvBadge = d.bcv_rate ? `<span class="bcv-badge" data-bcv-rate="${d.bcv_rate}" data-bcv-date="${d.created_at}" style="background:#fde68a;color:#92400e;padding:4px 8px;border-radius:999px;font-size:12px;margin-left:8px;cursor:default">BCV</span>` : '';
+              const usdBadge = (d.currency && d.currency.toUpperCase() === 'USD') ? `<span class="usd-badge" style="background:#bbf7d0;color:#064e3b;padding:4px 8px;border-radius:999px;font-size:12px;margin-left:8px">USD</span>` : '';
+              tr.innerHTML = `<td>${d.id}</td><td>${d.tipo}</td><td>${d.doc_number}${usdBadge}${bcvBadge}</td><td>${d.cliente||''}</td><td>${Number(d.total_usd).toFixed(2)}</td><td>${new Date(d.created_at).toLocaleString()}</td><td><button class="viewDoc" data-id="${d.id}">Ver</button></td>`;
+              docsTableBody.appendChild(tr);
+            });
+            // attach tooltip handlers to BCV badges
+            (function(){
+              // create tooltip root if missing
+              let tt = document.getElementById('bcv-tooltip');
+              if(!tt){
+                tt = document.createElement('div'); tt.id = 'bcv-tooltip';
+                tt.style.position = 'fixed'; tt.style.zIndex = '99999'; tt.style.pointerEvents = 'none'; tt.style.padding = '8px 10px'; tt.style.background = 'rgba(2,6,23,0.9)'; tt.style.color = '#fff'; tt.style.borderRadius = '6px'; tt.style.fontSize = '13px'; tt.style.boxShadow = '0 6px 20px rgba(2,6,23,0.4)'; tt.style.transition = 'opacity 160ms, transform 160ms'; tt.style.opacity = '0'; tt.style.transform = 'translateY(-6px)'; tt.style.display = 'none'; document.body.appendChild(tt);
+              }
+              const badges = docsTableBody.querySelectorAll('.bcv-badge');
+              badges.forEach(b => {
+                b.addEventListener('mouseenter', (e)=>{
+                  const rate = b.dataset.bcvRate; const date = b.dataset.bcvDate;
+                  const d = date ? new Date(date) : null;
+                  const txt = `Tasa BCV: ${Number(rate).toFixed(6)}${d? ' — ' + d.toLocaleString(): ''}`;
+                  tt.textContent = txt;
+                  tt.style.display = 'block'; tt.style.opacity = '1'; tt.style.transform = 'translateY(0)';
+                  const rect = b.getBoundingClientRect();
+                  // position above the badge, center aligned
+                  const left = Math.min(window.innerWidth - 16 - tt.offsetWidth, Math.max(8, rect.left + (rect.width/2) - (tt.offsetWidth/2)));
+                  const top = Math.max(8, rect.top - tt.offsetHeight - 8);
+                  tt.style.left = left + 'px'; tt.style.top = top + 'px';
+                });
+                b.addEventListener('mouseleave', ()=>{
+                  tt.style.opacity = '0'; tt.style.transform = 'translateY(-6px)'; setTimeout(()=>{ tt.style.display = 'none'; }, 180);
+                });
+              });
+            })();
+            // attach handlers
+            docsTableBody.querySelectorAll('.viewDoc').forEach(b => b.addEventListener('click', ()=> openDoc(b.dataset.id)));
+          } else {
+            docsTableBody.innerHTML = '<tr><td colspan="7">No hay documentos.</td></tr>';
+          }
+        }catch(err){
+          docsTableBody.innerHTML = '<tr><td colspan="7">Error cargando documentos</td></tr>';
+        }
+      }
+
+      async function openDoc(id){
+        try{
+          const r = await fetch(`/api/documentos/${id}`);
+          const j = await r.json();
+          if(j.ok){
+            currentDocId = id;
+            modalDocNumber.textContent = j.data.doc_number || `Documento ${id}`;
+            let html = `<div><strong>Tipo:</strong> ${j.data.tipo} — <strong>Cliente:</strong> ${j.data.cliente||''}</div>`;
+            const docCurrency = (j.data.currency||'USD').toUpperCase();
+            html += `<table style="width:100%;margin-top:8px;border-collapse:collapse"><thead><tr style="text-align:left;border-bottom:1px solid #eef2f6"><th>Producto</th><th>Cantidad</th><th>P.Unit</th><th>Total</th></tr></thead><tbody>`;
+            if(docCurrency === 'USD'){
+              j.data.items.forEach(it => { html += `<tr><td>${it.description||''}</td><td>${it.quantity}</td><td>${Number(it.unit_price_usd).toFixed(4)}</td><td>${Number(it.total_usd).toFixed(2)}</td></tr>`; });
+            } else {
+              // show BSF prices with 2 decimals when using BCV/ves
+              j.data.items.forEach(it => { html += `<tr><td>${it.description||''}</td><td>${it.quantity}</td><td>${Number(it.unit_price_bsf || (it.unit_price_usd * (j.data.bcv_rate||j.data.exchange_rate||1))).toFixed(2)}</td><td>${Number(it.total_bsf || (it.total_usd * (j.data.bcv_rate||j.data.exchange_rate||1))).toFixed(2)}</td></tr>`; });
+            }
+            html += `</tbody></table>`;
+            html += `<div style="margin-top:8px"><strong>Subtotal USD:</strong> ${Number(j.data.subtotal_usd).toFixed(2)} — <strong>IVA:</strong> ${Number(j.data.tax_usd).toFixed(2)} — <strong>Total USD:</strong> ${Number(j.data.total_usd).toFixed(2)}</div>`;
+            if(j.data.subtotal_bsf !== undefined){
+              html += `<div style="margin-top:6px;color:var(--muted)"><strong>Subtotal Bs.F:</strong> ${Number(j.data.subtotal_bsf).toFixed(2)} — <strong>IVA Bs.F:</strong> ${Number(j.data.tax_bsf).toFixed(2)} — <strong>Total Bs.F:</strong> ${Number(j.data.total_bsf).toFixed(2)}</div>`;
+            }
+            if(j.data.bcv_rate){
+              html += `<div style="margin-top:6px;color:var(--muted)"><strong>Tasa BCV guardada:</strong> ${Number(j.data.bcv_rate).toFixed(6)}</div>`;
+            }
+            modalBody.innerHTML = html;
+            docModal.style.display = 'flex';
+            docModal.setAttribute('aria-hidden','false');
+          } else {
+            alert('No se pudo cargar el documento');
+          }
+        }catch(err){ console.error(err); alert('Error al cargar documento'); }
+      }
+
+      closeDocModal.addEventListener('click', ()=>{ docModal.style.display = 'none'; docModal.setAttribute('aria-hidden','true'); currentDocId = null; });
+      deleteDocBtn.addEventListener('click', async ()=>{
+        if(!currentDocId) return;
+        if(!confirm('¿Eliminar este documento? Esta acción no se puede deshacer.')) return;
+        try{
+          const r = await fetch(`/api/documentos/${currentDocId}`, { method:'DELETE' });
+          const j = await r.json();
+          if(j.ok){ docModal.style.display='none'; loadDocs(); (window.showToast||(()=>{}))('Documento eliminado','success'); }
+          else (window.showToast||(()=>{}))('Error al eliminar','error');
+        }catch(err){ (window.showToast||(()=>{}))('Error al eliminar','error'); }
+      });
+
+      // load on entering view
+      navLinks.forEach(a=>{ if(a.dataset.view === 'documentos') a.addEventListener('click', ()=> setTimeout(loadDocs, 150)); });
+      // if loaded from hash
+      if(location.hash.replace('#','') === 'documentos') loadDocs();
+    })();
+
+    </script>
+    <style>
+      /* Mobile menu link styles: full-width, large touch area, icon + label */
+      #mobileMenu .mobile-link{display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;color:var(--text);text-decoration:none;margin:6px 4px;transition:background 140ms,transform 140ms;outline:none}
+      #mobileMenu .mobile-link svg{width:20px;height:20px;flex-shrink:0;opacity:0.95}
+      #mobileMenu .mobile-link span{flex:1;text-align:left}
+      #mobileMenu .mobile-link:focus, #mobileMenu .mobile-link:hover{background:#f3f4f6;transform:translateY(-1px)}
+      @media (max-width:800px){
+        #mobileMenu{margin:8px}
+        #mobileMenu .mobile-link{font-size:16px;padding:14px;border-radius:10px}
+      }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,126 @@
+---
+const title = 'Home';
+import Alert from '../components/Alert.astro';
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <main>
+  <section class="card">
+    <h1>Iniciar sesión</h1>
+  <form id="loginForm" class="login-form" action="#" method="post">
+          <label for="usuario">Usuario</label>
+          <input id="usuario" name="usuario" type="text" placeholder="tu.usuario" required />
+
+          <label for="password">Contraseña</label>
+          <input id="password" name="password" type="password" placeholder="••••••••" required />
+
+          <button type="submit" class="btn">Iniciar sesión</button>
+        </form>
+        <!-- Toast container: alerts will appear here (below the form) -->
+        <div id="toast-root" aria-live="polite" aria-atomic="true"></div>
+      </section>
+  <!-- Componente React eliminado del Home -->
+    </main>
+    <!-- include Alert component once to ensure styles are included in the build -->
+    <div style="display:none" aria-hidden="true"><Alert message="" /></div>
+    <script>
+      // Simple toast utility
+      function showToast(message, { type = 'info', duration = 3500 } = {}){
+        const root = document.getElementById('toast-root');
+        if(!root) return;
+          const toast = document.createElement('div');
+          // map to alert-like classes
+          const typeClass = type === 'success' ? 'alert-success' : (type === 'error' ? 'alert-error' : (type === 'warning' ? 'alert-warning' : 'alert-info'));
+          toast.className = `alert ${typeClass}`;
+          toast.setAttribute('role','alert');
+          toast.tabIndex = 0;
+          toast.innerHTML = `<div class="alert-body"><strong>${type === 'success' ? 'Listo' : (type === 'error' ? 'Error' : 'Aviso')}</strong><div class="alert-message">${message}</div></div><button class="alert-close" aria-label="Cerrar">×</button>`;
+        root.appendChild(toast);
+        // focus for screen readers
+        toast.focus();
+  const closeBtn = toast.querySelector('.alert-close');
+  function remove(){ if(!toast.parentNode) return; toast.classList.remove('alert-enter'); toast.classList.add('alert-leave'); setTimeout(()=> toast.remove(), 300); }
+  closeBtn.addEventListener('click', remove);
+  toast.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') remove(); });
+  // enter animation
+  requestAnimationFrame(()=> toast.classList.add('alert-enter'));
+        if(duration > 0) setTimeout(remove, duration);
+      }
+
+      const form = document.getElementById('loginForm');
+      const submitBtn = form.querySelector('button[type="submit"]');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const usuario = document.getElementById('usuario').value;
+        const password = document.getElementById('password').value;
+        try{
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Verificando...';
+          const res = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ usuario, password }) });
+          const data = await res.json();
+          if(res.ok && data.ok){
+            showToast('Inicio de sesión correcto. Redirigiendo...', { type: 'success', duration: 1400 });
+            setTimeout(()=> window.location.href = '/dashboard', 900);
+          } else {
+            showToast(data.error || 'Credenciales incorrectas', { type: 'error', duration: 4500 });
+          }
+        } catch(err){
+          showToast('Error de red: '+err.message, { type: 'error', duration: 5000 });
+        } finally{
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Iniciar sesión';
+        }
+      })
+    </script>
+    <style>
+  /* Alert / Toast styles (flow beneath the form) */
+  #toast-root{position:static;display:flex;flex-direction:column;gap:10px;margin-top:14px}
+  .alert{pointer-events:auto;width:100%;padding:12px;border-radius:8px;border-width:1px;border-style:solid;font-weight:500;background:#fff;opacity:0;transform:translateY(-6px) scale(0.98);box-shadow:0 6px 18px rgba(2,6,23,0.06)}
+  .alert-enter{transition:all 260ms cubic-bezier(.2,.9,.2,1);opacity:1;transform:translateY(0) scale(1)}
+  .alert-leave{transition:all 180ms ease;opacity:0;transform:translateY(-8px) scale(0.98)}
+  .alert-body{display:flex;flex-direction:column}
+  .alert strong{display:block;font-size:13px}
+  .alert-message{font-size:13px;color:var(--muted);margin-top:4px}
+  .alert-close{border:0;background:transparent;padding:6px 8px;font-size:18px;cursor:pointer;color:var(--muted);float:right}
+
+  /* Estilo de Error */
+  .alert-error{background-color:#fde8e8;border-color:#e53e3e;color:#c53030}
+
+  /* Estilo de Éxito */
+  .alert-success{background-color:#e6fffa;border-color:#38a169;color:#2f855a}
+
+  /* Estilo de Información */
+  .alert-info{background-color:#ebf8ff;border-color:#3182ce;color:#2b6cb0}
+
+  /* Estilo de Warning (opcional) */
+  .alert-warning{background-color:#fff7ed;border-color:#d97706;color:#92400e}
+
+  @media (max-width:520px){#toast-root{width:100%;margin-top:10px}}
+    </style>
+    <style>
+      :root{
+        --bg: #f7f7f8;
+        --card: #ffffff;
+        --text: #111827;
+        --muted: #6b7280;
+        --accent: #111827;
+      }
+      body{font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:var(--bg); color:var(--text); margin:0; display:flex; align-items:center; justify-content:center; min-height:100vh}
+      .card{background:var(--card); padding:32px; border-radius:12px; box-shadow:0 6px 20px rgba(17,24,39,0.08); width:320px}
+      h1{margin:0 0 16px 0; font-size:20px}
+      .login-form{display:flex; flex-direction:column; gap:10px}
+      label{font-size:12px; color:var(--muted)}
+      input{padding:10px 12px; border:1px solid #e6e7eb; border-radius:8px; font-size:14px; outline:none}
+      input:focus{box-shadow:0 0 0 3px rgba(17,24,39,0.04); border-color:#d1d5db}
+      .btn{margin-top:8px; padding:10px 12px; background:var(--accent); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600}
+      .btn:hover{opacity:0.95}
+    </style>
+  </body>
+</html>

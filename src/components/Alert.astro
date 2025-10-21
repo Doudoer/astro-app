@@ -1,0 +1,66 @@
+---
+interface Props {
+  type?: 'error' | 'success' | 'info' | 'warning';
+  message: string;
+}
+
+const { type = 'info', message } = Astro.props;
+
+// Mapea el tipo a una clase CSS
+const typeClasses = {
+  error: 'alert-error',
+  success: 'alert-success',
+  info: 'alert-info',
+  warning: 'alert-warning',
+};
+---
+
+<div class:list={["alert", typeClasses[type]]} role="alert">
+  <p>{message}</p>
+</div>
+
+<style>
+  .alert {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    border-width: 1px;
+    border-style: solid;
+    font-weight: 500;
+    background: #05aa05ff;
+    border-color: #e6e7eb;
+    opacity: 1;
+    transition: all 220ms cubic-bezier(.2,.9,.2,1);
+    transform-origin: right top;
+  }
+
+  /* Estilo de Error */
+  .alert-error {
+    background-color: #ef4444; /* Fondo rojo */
+    border-color: #b91c1c;     /* Borde rojo oscuro */
+    color: #ffffff;            /* Texto blanco */
+  }
+
+  /* Estilo de Éxito */
+  .alert-success {
+    background-color: #10b981; /* Fondo verde */
+    border-color: #065f46;     /* Borde verde oscuro */
+    color: #ffffff;            /* Texto blanco */
+  }
+
+  /* Estilo de Información */
+  .alert-info {
+    background-color: #ebf8ff; /* Fondo azul claro */
+    border-color: #3182ce;     /* Borde azul */
+    color: #2b6cb0;            /* Texto azul oscuro */
+  }
+
+  /* Estilo Warning */
+  .alert-warning {
+    background-color: #fff7ed;
+    border-color: #d97706;
+    color: #92400e;
+  }
+
+  .alert p { margin:0; font-size:14px }
+</style>

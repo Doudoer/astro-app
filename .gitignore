@@ -1,0 +1,18 @@
+node_modules/
+.env
+dist/
+
+# Editor and system files
+.vscode/
+Thumbs.db
+desktop.ini
+
+# Cache and npm debug logs
+.cache/
+npm-debug.log*
+
+# Lockfiles, macOS and IDE
+package-lock.json
+yarn.lock
+.DS_Store
+.idea/
