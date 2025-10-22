@@ -144,31 +144,31 @@ const title = 'Dashboard';
 
     <main class="container">
       <!-- Views rendered in-place -->
-      <section id="view-inicio" class="view-section" style="background:var(--card);padding:28px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.06)">
+  <section id="view-inicio" class="view-section card" style="box-shadow:0 8px 30px rgba(0,0,0,0.06)">
         <h1>Bienvenido al Dashboard</h1>
         <p id="welcome">Cargando...</p>
   <div id="stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:18px">
-          <div class="stat-card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06)">
+          <div class="stat-card card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;">
             <div style="font-size:13px;color:var(--muted)">Productos en catálogo</div>
             <div id="stat-products" style="font-size:28px;font-weight:700;margin-top:8px">—</div>
           </div>
-          <div class="stat-card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06)">
+          <div class="stat-card card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;">
             <div style="font-size:13px;color:var(--muted)">Clientes registrados</div>
             <div id="stat-clients" style="font-size:28px;font-weight:700;margin-top:8px">—</div>
           </div>
           <div style="display:flex;gap:12px;flex-wrap:wrap">
-            <div class="stat-card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06);min-width:200px;margin-right:12px">
+            <div class="stat-card card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;min-width:200px;margin-right:12px">
               <div style="font-size:13px;color:var(--muted)">Cotizaciones</div>
               <div id="stat-quotes" style="font-size:20px;font-weight:700;margin-top:8px">—</div>
               <div id="stat-quotes-amount" style="font-size:12px;color:var(--muted);margin-top:6px">— USD</div>
             </div>
-            <div class="stat-card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06);min-width:200px">
+            <div class="stat-card card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;min-width:200px">
               <div style="font-size:13px;color:var(--muted)">Notas de Entregas</div>
               <div id="stat-notes" style="font-size:20px;font-weight:700;margin-top:8px">—</div>
               <div id="stat-notes-amount" style="font-size:12px;color:var(--muted);margin-top:6px">— USD</div>
             </div>
           </div>
-          <div class="stat-card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06)">
+          <div class="stat-card card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;">
             <div style="font-size:13px;color:var(--muted)">Total ventas (USD) - Mes</div>
             <div id="stat-sales" style="font-size:28px;font-weight:700;margin-top:8px">—</div>
           </div>
@@ -194,7 +194,7 @@ const title = 'Dashboard';
         </div>
       </section>
 
-      <section id="view-crear" class="view-section" style="display:none;background:var(--card);padding:28px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.06)">
+  <section id="view-crear" class="view-section card" style="display:none;box-shadow:0 8px 30px rgba(0,0,0,0.06)">
         <h1>Crear documento</h1>
         <form id="createDocForm">
           <div style="display:flex;gap:12px;flex-wrap:wrap">
