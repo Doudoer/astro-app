@@ -24,6 +24,23 @@ async function main(){
     await conn.query("ALTER TABLE mi_app_astro_db.usuarios ADD COLUMN role VARCHAR(50) NOT NULL DEFAULT 'user'");
   }
 
+  // ensure nombre, apellido, telefono columns exist on usuarios
+  const [nombreCol] = await conn.query("SHOW COLUMNS FROM mi_app_astro_db.usuarios LIKE 'nombre'");
+  if(nombreCol.length === 0){
+    console.log("Añadiendo columna 'nombre' a usuarios...");
+    await conn.query("ALTER TABLE mi_app_astro_db.usuarios ADD COLUMN nombre VARCHAR(255) DEFAULT NULL");
+  }
+  const [apellidoCol] = await conn.query("SHOW COLUMNS FROM mi_app_astro_db.usuarios LIKE 'apellido'");
+  if(apellidoCol.length === 0){
+    console.log("Añadiendo columna 'apellido' a usuarios...");
+    await conn.query("ALTER TABLE mi_app_astro_db.usuarios ADD COLUMN apellido VARCHAR(255) DEFAULT NULL");
+  }
+  const [telefonoCol] = await conn.query("SHOW COLUMNS FROM mi_app_astro_db.usuarios LIKE 'telefono'");
+  if(telefonoCol.length === 0){
+    console.log("Añadiendo columna 'telefono' a usuarios...");
+    await conn.query("ALTER TABLE mi_app_astro_db.usuarios ADD COLUMN telefono VARCHAR(50) DEFAULT NULL");
+  }
+
   // ensure sessions table exists (in case init.sql was older)
   await conn.query(`CREATE TABLE IF NOT EXISTS sessions (
     id VARCHAR(128) PRIMARY KEY,
