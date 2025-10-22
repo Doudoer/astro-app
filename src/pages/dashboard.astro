@@ -546,6 +546,11 @@ const title = 'Dashboard';
             document.getElementById('viewUsers').style.display = 'none';
             // add a class so CSS can hide admin-only controls like delete buttons
             try{ document.body.classList.add('role-user'); }catch(e){}
+            // hide any delete controls that may already be in the DOM
+            try{
+              document.querySelectorAll('.delProd, .delClient').forEach(el => { if(el && el.style) el.style.display = 'none'; });
+              const dd = document.getElementById('deleteDoc'); if(dd) dd.style.display = 'none';
+            }catch(e){}
           }
         } else {
           // not logged in, redirect to home
@@ -1121,6 +1126,8 @@ const title = 'Dashboard';
               card.style.borderRadius = '10px';
               card.style.boxShadow = '0 6px 18px rgba(2,6,23,0.04)';
               card.innerHTML = cards.productCard(p);
+              // remove delete button for non-admins
+              if(!window.currentUserIsAdmin){ const del = card.querySelector('.delProd'); if(del) del.remove(); }
               productsGrid.appendChild(card);
             });
             // attach delete handlers only for admins
@@ -1236,6 +1243,8 @@ const title = 'Dashboard';
               card.style.borderRadius = '10px';
               card.style.boxShadow = '0 6px 18px rgba(2,6,23,0.04)';
               card.innerHTML = cards.clientCard(c);
+              // remove delete button for non-admins
+              if(!window.currentUserIsAdmin){ const del = card.querySelector('.delClient'); if(del) del.remove(); }
               // set data attributes on the edit button so the handler can read them
               const editBtn = card.querySelector('.editClient');
               if(editBtn){ editBtn.dataset.name = c.name || ''; editBtn.dataset.rif = c.rif_ci || ''; editBtn.dataset.phone = c.phone || ''; editBtn.dataset.address = c.address || ''; }
