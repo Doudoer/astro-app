@@ -24,9 +24,10 @@ export async function POST({ request }){
     const { usuario, password, role, nombre, apellido, phone } = body || {};
   if(!usuario || !password) return new Response(JSON.stringify({ ok:false, error:'usuario y password son requeridos' }), { status:400, headers:{ 'Content-Type':'application/json' } });
   // Server-side validation for phone: if provided, require 10 digits
+  let phoneDigits = null;
   if(phone){
-    const digits = String(phone).replace(/\D/g, '');
-    if(digits && !/^\d{10}$/.test(digits)){
+    phoneDigits = String(phone).replace(/\D/g, '');
+    if(phoneDigits && !/^\d{10}$/.test(phoneDigits)){
       return new Response(JSON.stringify({ ok:false, error:'Teléfono inválido: se requieren 10 dígitos (ej: (412)-1234567)' }), { status:400, headers:{ 'Content-Type':'application/json' } });
     }
   }
@@ -34,7 +35,7 @@ export async function POST({ request }){
   try{
     const hashed = await bcrypt.hash(password, 10);
     try{
-        const [res] = await conn.execute('INSERT INTO usuarios (usuario, password, role, nombre, apellido, phone) VALUES (?, ?, ?, ?, ?, ?)', [usuario, hashed, role || 'user', nombre || null, apellido || null, phone || null]);
+  const [res] = await conn.execute('INSERT INTO usuarios (usuario, password, role, nombre, apellido, phone) VALUES (?, ?, ?, ?, ?, ?)', [usuario, hashed, role || 'user', nombre || null, apellido || null, phoneDigits || null]);
       return new Response(JSON.stringify({ ok:true, id: res.insertId, usuario }), { status:201, headers:{ 'Content-Type':'application/json' } });
     }catch(err){
       if(err && err.code === 'ER_DUP_ENTRY') return new Response(JSON.stringify({ ok:false, error:'Usuario ya existe' }), { status:409, headers:{ 'Content-Type':'application/json' } });

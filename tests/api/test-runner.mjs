@@ -1,1 +1,1 @@
-import('./test-auth.mjs').then(()=>import('./test-products.mjs')).then(()=>import('./test-clients.mjs')).then(()=>import('./test-docs.mjs')).catch(err=>{ console.error('Tests fallaron', err); process.exit(1) });
+import('./test-auth.mjs').then(()=>import('./test-users.mjs')).then(()=>import('./test-products.mjs')).then(()=>import('./test-clients.mjs')).then(()=>import('./test-docs.mjs')).catch(err=>{ console.error('Tests fallaron', err); process.exit(1) });
