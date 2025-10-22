@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
-import { requireAdmin, requireAuth } from './_auth.js';
+import { requireAdmin } from './_auth.js';
 dotenv.config();
 
 export const prerender = false;
@@ -19,8 +19,8 @@ export async function GET(){
 }
 
 export async function POST({ request }){
-  // allow any authenticated user to create products
-  const auth = await requireAuth(request);
+  // only admins may create products
+  const auth = await requireAdmin(request);
   if(!auth.ok) return auth.response;
   const body = await request.json();
   let { description, price_usd=0 } = body;
