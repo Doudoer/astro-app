@@ -73,6 +73,35 @@ const title = 'Dashboard';
     .card-btn:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(2,6,23,0.08)}
     .card-btn:active{transform:translateY(0);opacity:0.95}
     .card-btn--small{padding:6px 10px;font-size:13px;border-radius:6px}
+    
+    /* Responsive fixes: prevent cards overflowing on small screens */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* make sure cards never exceed container width and text wraps */
+    .product-card, .client-card, .doc-card, .card { width: 100%; max-width: 100%; box-sizing: border-box; }
+    .product-card > *, .client-card > *, .doc-card > * { word-break: break-word; overflow-wrap: anywhere; }
+
+    /* ensure badges and inline elements don't force horizontal scroll */
+    .bcv-badge, .usd-badge { display: inline-block; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* small-screen specific adjustments */
+    @media (max-width: 640px) {
+      .container{padding:12px}
+      .navbar{padding:0 12px}
+      /* make stats collapse to one column on very small screens */
+      #stats{grid-template-columns: 1fr}
+      /* ensure grids are single-column and cards stack nicely */
+      #docsGrid, #productsGrid, #clientsGrid{grid-template-columns: 1fr; gap:12px}
+      /* reduce card padding and radius to fit small widths */
+      .product-card, .client-card, .doc-card{padding:10px !important;border-radius:8px !important;min-height:unset}
+      /* make flex rows wrap instead of overflowing */
+      .product-card, .client-card, .doc-card{display:flex;flex-direction:column;}
+      .product-card > div, .client-card > div, .doc-card > div{width:100%}
+      /* shrink buttons slightly */
+      .card-btn{padding:6px 10px;font-size:13px}
+      /* tooltip max width */
+      #bcv-tooltip{max-width:calc(100% - 32px)}
+    }
     </style>
   </head>
   <body>
