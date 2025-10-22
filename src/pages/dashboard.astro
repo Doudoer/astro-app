@@ -553,9 +553,82 @@ const title = 'Dashboard';
       });
 
       // profile actions
-      document.getElementById('changePwd').addEventListener('click', (e)=>{ e.preventDefault(); alert('Funcionalidad no implementada aún'); });
-      document.getElementById('createUser').addEventListener('click', (e)=>{ e.preventDefault(); alert('Funcionalidad no implementada aún'); });
-      document.getElementById('viewUsers').addEventListener('click', (e)=>{ e.preventDefault(); alert('Funcionalidad no implementada aún'); });
+      // Profile: Change password modal
+      (function(){
+        const changeLink = document.getElementById('changePwd');
+        const createLink = document.getElementById('createUser');
+        const viewLink = document.getElementById('viewUsers');
+        // ensure modals exist: create DOM nodes if missing
+        if(!document.getElementById('changePwdModal')){
+          const modal = document.createElement('div'); modal.id = 'changePwdModal'; modal.role='dialog'; modal.style.display='none'; modal.style.position='fixed'; modal.style.inset='0'; modal.style.background='rgba(0,0,0,0.4)'; modal.style.alignItems='center'; modal.style.justifyContent='center'; modal.style.padding='20px';
+          modal.innerHTML = `<div style="background:var(--card);max-width:420px;width:100%;padding:18px;border-radius:10px;box-shadow:0 10px 40px rgba(2,6,23,0.2);position:relative">
+            <button id="closeChangePwd" class="btn-secondary" style="position:absolute;right:10px;top:10px">Cerrar</button>
+            <h3>Cambiar contraseña</h3>
+            <div style="margin-top:8px"><label>Contraseña actual</label><input id="currentPassword" type="password" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div>
+            <div style="margin-top:8px"><label>Nueva contraseña</label><input id="newPassword" type="password" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div>
+            <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end"><button id="savePassword" class="btn-primary">Guardar</button><button id="cancelChangePwd" class="btn-secondary">Cancelar</button></div>
+            <div id="changePwdResult" style="margin-top:8px;color:var(--muted)"></div>
+          </div>`;
+          document.body.appendChild(modal);
+        }
+
+        if(!document.getElementById('createUserModal')){
+          const modal = document.createElement('div'); modal.id = 'createUserModal'; modal.role='dialog'; modal.style.display='none'; modal.style.position='fixed'; modal.style.inset='0'; modal.style.background='rgba(0,0,0,0.4)'; modal.style.alignItems='center'; modal.style.justifyContent='center'; modal.style.padding='20px';
+          modal.innerHTML = `<div style="background:var(--card);max-width:520px;width:100%;padding:18px;border-radius:10px;box-shadow:0 10px 40px rgba(2,6,23,0.2);position:relative">
+            <button id="closeCreateUser" class="btn-secondary" style="position:absolute;right:10px;top:10px">Cerrar</button>
+            <h3>Crear usuario</h3>
+            <div style="margin-top:8px;display:flex;gap:8px"><div style="flex:1"><label>Usuario</label><input id="newUserUsuario" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div><div style="width:160px"><label>Rol</label><select id="newUserRole" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px"><option value="user">user</option><option value="admin">admin</option></select></div></div>
+            <div style="margin-top:8px"><label>Contraseña</label><input id="newUserPassword" type="password" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div>
+            <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end"><button id="saveNewUser" class="btn-primary">Crear</button><button id="cancelCreateUser" class="btn-secondary">Cancelar</button></div>
+            <div id="createUserResult" style="margin-top:8px;color:var(--muted)"></div>
+          </div>`;
+          document.body.appendChild(modal);
+        }
+
+        if(!document.getElementById('viewUsersModal')){
+          const modal = document.createElement('div'); modal.id = 'viewUsersModal'; modal.role='dialog'; modal.style.display='none'; modal.style.position='fixed'; modal.style.inset='0'; modal.style.background='rgba(0,0,0,0.4)'; modal.style.alignItems='center'; modal.style.justifyContent='center'; modal.style.padding='20px';
+          modal.innerHTML = `<div style="background:var(--card);max-width:760px;width:100%;padding:18px;border-radius:10px;box-shadow:0 10px 40px rgba(2,6,23,0.2);position:relative">
+            <button id="closeViewUsers" class="btn-secondary" style="position:absolute;right:10px;top:10px">Cerrar</button>
+            <h3>Usuarios</h3>
+            <div id="usersList" style="margin-top:8px;max-height:420px;overflow:auto"></div>
+            <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end"><button id="refreshUsers" class="btn-ghost">Refrescar</button></div>
+          </div>`;
+          document.body.appendChild(modal);
+        }
+
+        // handlers
+        changeLink.addEventListener('click', (e)=>{ e.preventDefault(); const m = document.getElementById('changePwdModal'); if(m) window.openModal(m, changeLink); });
+        createLink.addEventListener('click', (e)=>{ e.preventDefault(); const m = document.getElementById('createUserModal'); if(m) window.openModal(m, createLink); });
+        viewLink.addEventListener('click', async (e)=>{ e.preventDefault(); const m = document.getElementById('viewUsersModal'); if(m){ window.openModal(m, viewLink); loadUsersList(); } });
+
+        // change password submit
+        (function(){ const save = document.getElementById('savePassword'); if(save){ save.addEventListener('click', async ()=>{
+            const cur = document.getElementById('currentPassword').value; const nw = document.getElementById('newPassword').value; const out = document.getElementById('changePwdResult'); out.textContent='';
+            if(!cur || !nw) return out.textContent = 'Complete los campos';
+            try{ const r = await fetch('/api/change-password', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ currentPassword: cur, newPassword: nw }) }); const j = await r.json(); if(j.ok){ out.textContent='Contraseña cambiada'; window.showToast('Contraseña actualizada','success'); window.closeModal(document.getElementById('changePwdModal')); } else out.textContent = j.error || 'Error'; }catch(err){ out.textContent = 'Error'; }
+        }); }
+        const cancel = document.getElementById('cancelChangePwd'); if(cancel) cancel.addEventListener('click', ()=> window.closeModal(document.getElementById('changePwdModal')));
+        const closeBtn = document.getElementById('closeChangePwd'); if(closeBtn) closeBtn.addEventListener('click', ()=> window.closeModal(document.getElementById('changePwdModal')));
+        })();
+
+        // create user submit
+        (function(){ const saveNew = document.getElementById('saveNewUser'); if(saveNew){ saveNew.addEventListener('click', async ()=>{
+            const usuario = document.getElementById('newUserUsuario').value.trim(); const password = document.getElementById('newUserPassword').value; const role = document.getElementById('newUserRole').value; const out = document.getElementById('createUserResult'); out.textContent='';
+            if(!usuario || !password) return out.textContent='Usuario y contraseña requeridos';
+            try{ const r = await fetch('/api/usuarios', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ usuario, password, role }) }); const j = await r.json(); if(j.ok){ out.textContent='Usuario creado'; window.showToast('Usuario creado','success'); setTimeout(()=> window.closeModal(document.getElementById('createUserModal')), 600); } else out.textContent = j.error || 'Error'; }catch(err){ out.textContent = 'Error'; }
+        }); }
+        const cancelCreate = document.getElementById('cancelCreateUser'); if(cancelCreate) cancelCreate.addEventListener('click', ()=> window.closeModal(document.getElementById('createUserModal')));
+        const closeCreate = document.getElementById('closeCreateUser'); if(closeCreate) closeCreate.addEventListener('click', ()=> window.closeModal(document.getElementById('createUserModal')));
+        })();
+
+        // view users list
+        async function loadUsersList(){ const root = document.getElementById('usersList'); if(!root) return; root.innerHTML = 'Cargando...'; try{ const r = await fetch('/api/usuarios'); const j = await r.json(); if(j.ok && Array.isArray(j.data)){ root.innerHTML = ''; j.data.forEach(u => { const el = document.createElement('div'); el.style.display='flex'; el.style.justifyContent='space-between'; el.style.alignItems='center'; el.style.padding='8px'; el.style.borderBottom='1px solid #f1f1f1'; el.innerHTML = `<div><strong>${u.usuario}</strong><div style="font-size:12px;color:var(--muted)">${u.role}</div></div><div style="display:flex;gap:8px"><button class="btn-ghost" data-id="${u.id}" data-usuario="${u.usuario}">Reset pwd</button></div>`; root.appendChild(el); });
+            // attach reset handlers (admin-only)
+            root.querySelectorAll('button[data-id]').forEach(b=> b.addEventListener('click', async ()=>{ const id=b.dataset.id; const usuario=b.dataset.usuario; if(!confirm(`Resetear contraseña de ${usuario}?`)) return; try{ const r = await fetch(`/api/usuarios/${id}/reset`, { method:'POST' }); const j = await r.json(); if(j.ok) window.showToast('Contraseña reseteada','success'); else window.showToast(j.error||'Error','error'); }catch(e){ window.showToast('Error','error'); } }));
+        } else root.innerHTML = 'No hay usuarios'; }catch(err){ root.innerHTML = 'Error cargando'; } }
+        const refresh = document.getElementById('refreshUsers'); if(refresh) refresh.addEventListener('click', loadUsersList);
+        const closeView = document.getElementById('closeViewUsers'); if(closeView) closeView.addEventListener('click', ()=> window.closeModal(document.getElementById('viewUsersModal')));
+      })();
 
       // Close dropdown when clicking outside
       document.addEventListener('click', (e)=>{
@@ -1034,6 +1107,8 @@ const title = 'Dashboard';
             j.data.forEach(p => {
               const card = document.createElement('div');
               card.className = 'product-card';
+              card.setAttribute('role', 'article');
+              card.tabIndex = 0;
               card.style.background = 'var(--surface)';
               card.style.padding = '12px';
               card.style.borderRadius = '10px';
@@ -1144,6 +1219,8 @@ const title = 'Dashboard';
               const item = Object.assign({}, c);
               const card = document.createElement('div');
               card.className = 'client-card';
+              card.setAttribute('role', 'article');
+              card.tabIndex = 0;
               card.style.background = 'var(--surface)';
               card.style.padding = '12px';
               card.style.borderRadius = '10px';
@@ -1271,6 +1348,8 @@ const title = 'Dashboard';
             j.data.forEach(d => {
               const card = document.createElement('div');
               card.className = 'doc-card';
+              card.setAttribute('role', 'article');
+              card.tabIndex = 0;
               card.style.background = 'var(--surface)';
               card.style.padding = '14px';
               card.style.borderRadius = '10px';

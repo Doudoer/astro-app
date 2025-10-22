@@ -54,3 +54,26 @@ button {
 .card-btn--danger:hover { background-color:#dc2626; }
 .card-btn--ghost { background-color:#fff; color:#111827; border:1px solid #e6e7eb; }
 .card-btn--ghost:hover { background-color:#f9fafb; }
+
+/* Card hover and focus effects (only on devices that support hover/pointer precision) */
+@media (hover: hover) and (pointer: fine) {
+	.product-card, .client-card, .doc-card {
+		transition: transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 180ms ease;
+		will-change: transform;
+	}
+	.product-card:hover, .client-card:hover, .doc-card:hover {
+		transform: translateY(-6px);
+		box-shadow: 0 14px 40px rgba(2,6,23,0.12);
+	}
+}
+
+/* Accessible focus styles for keyboard users */
+.product-card:focus, .client-card:focus, .doc-card:focus {
+	outline: none;
+	transform: translateY(-4px);
+	box-shadow: 0 10px 30px rgba(2,6,23,0.12);
+}
+.product-card:focus-visible, .client-card:focus-visible, .doc-card:focus-visible {
+	outline: 3px solid rgba(6,95,70,0.12);
+	outline-offset: 6px;
+}
