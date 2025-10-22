@@ -23,11 +23,12 @@ export async function getSession(request){
   if(!sid) return null;
   const conn = await getConn();
   try{
-    const [rows] = await conn.execute('SELECT s.id, s.expires_at, u.usuario, u.role FROM sessions s JOIN usuarios u ON s.usuario_id = u.id WHERE s.id = ?', [sid]);
+  // include nombre and apellido for richer session info
+  const [rows] = await conn.execute('SELECT s.id, s.expires_at, u.usuario, u.role, u.nombre, u.apellido FROM sessions s JOIN usuarios u ON s.usuario_id = u.id WHERE s.id = ?', [sid]);
     if(rows.length === 0) return null;
     const s = rows[0];
     if(s.expires_at && new Date(s.expires_at) < new Date()) return null;
-    return { id: s.id, usuario: s.usuario, role: s.role };
+  return { id: s.id, usuario: s.usuario, role: s.role, nombre: s.nombre || null, apellido: s.apellido || null };
   } finally { await conn.end(); }
 }
 

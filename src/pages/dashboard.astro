@@ -537,7 +537,9 @@ const title = 'Dashboard';
         const res = await fetch('/api/session');
         const data = await res.json();
         if(data.ok){
-          document.getElementById('welcome').textContent = `Hola, ${data.usuario} — rol: ${data.role}`;
+          const fullName = ((data.nombre || '') + ' ' + (data.apellido || '')).trim();
+          const nameToShow = fullName || data.usuario;
+          document.getElementById('welcome').textContent = `Hola, ${nameToShow} — Rol: (${data.role || 'user'})`;
           // role based UI
           // expose role to client-side code
           window.currentUserRole = data.role || 'user';
@@ -590,7 +592,9 @@ const title = 'Dashboard';
           modal.innerHTML = `<div style="background:var(--card);max-width:520px;width:100%;padding:18px;border-radius:10px;box-shadow:0 10px 40px rgba(2,6,23,0.2);position:relative">
             <button id="closeCreateUser" class="btn-secondary" style="position:absolute;right:10px;top:10px">Cerrar</button>
             <h3>Crear usuario</h3>
-            <div style="margin-top:8px;display:flex;gap:8px"><div style="flex:1"><label>Usuario</label><input id="newUserUsuario" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div><div style="width:160px"><label>Rol</label><select id="newUserRole" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px"><option value="user">user</option><option value="admin">admin</option></select></div></div>
+            <div style="margin-top:8px;display:grid;grid-template-columns:1fr 160px;gap:8px"><div><label>Usuario</label><input id="newUserUsuario" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div><div><label>Rol</label><select id="newUserRole" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px"><option value="user">user</option><option value="admin">admin</option></select></div></div>
+            <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label>Nombre</label><input id="newUserNombre" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div><div><label>Apellido</label><input id="newUserApellido" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div></div>
+            <div style="margin-top:8px"><label>Teléfono</label><input id="newUserTelefono" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div>
             <div style="margin-top:8px"><label>Contraseña</label><input id="newUserPassword" type="password" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div>
             <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end"><button id="saveNewUser" class="btn-primary">Crear</button><button id="cancelCreateUser" class="btn-secondary">Cancelar</button></div>
             <div id="createUserResult" style="margin-top:8px;color:var(--muted)"></div>
@@ -625,17 +629,39 @@ const title = 'Dashboard';
         })();
 
         // create user submit
-        (function(){ const saveNew = document.getElementById('saveNewUser'); if(saveNew){ saveNew.addEventListener('click', async ()=>{
-            const usuario = document.getElementById('newUserUsuario').value.trim(); const password = document.getElementById('newUserPassword').value; const role = document.getElementById('newUserRole').value; const out = document.getElementById('createUserResult'); out.textContent='';
-            if(!usuario || !password) return out.textContent='Usuario y contraseña requeridos';
-            try{ const r = await fetch('/api/usuarios', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ usuario, password, role }) }); const j = await r.json(); if(j.ok){ out.textContent='Usuario creado'; window.showToast('Usuario creado','success'); setTimeout(()=> window.closeModal(document.getElementById('createUserModal')), 600); } else out.textContent = j.error || 'Error'; }catch(err){ out.textContent = 'Error'; }
-        }); }
+    (function(){ const saveNew = document.getElementById('saveNewUser'); if(saveNew){ saveNew.addEventListener('click', async ()=>{
+      const usuario = document.getElementById('newUserUsuario').value.trim();
+      const password = document.getElementById('newUserPassword').value;
+      const role = document.getElementById('newUserRole').value;
+      const nombre = document.getElementById('newUserNombre').value.trim();
+      const apellido = document.getElementById('newUserApellido').value.trim();
+  const telefono = document.getElementById('newUserTelefono').value.trim();
+      const out = document.getElementById('createUserResult'); out.textContent='';
+      if(!usuario || !password) return out.textContent='Usuario y contraseña requeridos';
+  try{
+    const payload = { usuario, password, role, nombre, apellido, phone: telefono };
+    try{ console.debug('Creating user, payload:', payload); }catch(e){ }
+    const r = await fetch('/api/usuarios', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(payload) }); const j = await r.json(); if(j.ok){ out.textContent='Usuario creado'; window.showToast('Usuario creado','success'); setTimeout(()=> window.closeModal(document.getElementById('createUserModal')), 600); } else out.textContent = j.error || 'Error'; }catch(err){ out.textContent = 'Error'; }
+    }); }
         const cancelCreate = document.getElementById('cancelCreateUser'); if(cancelCreate) cancelCreate.addEventListener('click', ()=> window.closeModal(document.getElementById('createUserModal')));
         const closeCreate = document.getElementById('closeCreateUser'); if(closeCreate) closeCreate.addEventListener('click', ()=> window.closeModal(document.getElementById('createUserModal')));
         })();
 
         // view users list
-        async function loadUsersList(){ const root = document.getElementById('usersList'); if(!root) return; root.innerHTML = 'Cargando...'; try{ const r = await fetch('/api/usuarios'); const j = await r.json(); if(j.ok && Array.isArray(j.data)){ root.innerHTML = ''; j.data.forEach(u => { const el = document.createElement('div'); el.style.display='flex'; el.style.justifyContent='space-between'; el.style.alignItems='center'; el.style.padding='8px'; el.style.borderBottom='1px solid #f1f1f1'; el.innerHTML = `<div><strong>${u.usuario}</strong><div style="font-size:12px;color:var(--muted)">${u.role}</div></div><div style="display:flex;gap:8px"><button class="btn-ghost" data-id="${u.id}" data-usuario="${u.usuario}">Reset pwd</button></div>`; root.appendChild(el); });
+        async function loadUsersList(){ const root = document.getElementById('usersList'); if(!root) return; root.innerHTML = 'Cargando...'; try{ const r = await fetch('/api/usuarios'); const j = await r.json(); if(j.ok && Array.isArray(j.data)){
+              root.innerHTML = '';
+              j.data.forEach(u => {
+                const el = document.createElement('div');
+                el.style.display='flex';
+                el.style.justifyContent='space-between';
+                el.style.alignItems='center';
+                el.style.padding='8px';
+                el.style.borderBottom='1px solid #f1f1f1';
+                // include nombre, apellido and telefono in the small meta line
+                const phoneDisplay = u.phone || u.telefono || '';
+                el.innerHTML = `<div><strong>${u.usuario}</strong><div style="font-size:12px;color:var(--muted)">${u.role}${u.nombre ? ' — ' + u.nombre : ''}${u.apellido ? ' ' + u.apellido : ''}${phoneDisplay ? ' • ' + phoneDisplay : ''}</div></div><div style="display:flex;gap:8px"><button class="btn-ghost" data-id="${u.id}" data-usuario="${u.usuario}">Reset pwd</button></div>`;
+                root.appendChild(el);
+              });
             // attach reset handlers (admin-only)
             root.querySelectorAll('button[data-id]').forEach(b=> b.addEventListener('click', async ()=>{ const id=b.dataset.id; const usuario=b.dataset.usuario; if(!confirm(`Resetear contraseña de ${usuario}?`)) return; try{ const r = await fetch(`/api/usuarios/${id}/reset`, { method:'POST' }); const j = await r.json(); if(j.ok) window.showToast('Contraseña reseteada','success'); else window.showToast(j.error||'Error','error'); }catch(e){ window.showToast('Error','error'); } }));
         } else root.innerHTML = 'No hay usuarios'; }catch(err){ root.innerHTML = 'Error cargando'; } }

@@ -11,7 +11,7 @@ export async function GET({ request }){
   if(!auth.ok) return auth.response;
   const conn = await getConn();
   try{
-    const [rows] = await conn.execute('SELECT id, usuario, role, nombre, apellido, telefono FROM usuarios ORDER BY id DESC');
+     const [rows] = await conn.execute('SELECT id, usuario, role, nombre, apellido, phone FROM usuarios ORDER BY id DESC');
     return new Response(JSON.stringify({ ok:true, data: rows }), { status:200, headers:{ 'Content-Type':'application/json' } });
   }finally{ await conn.end(); }
 }
@@ -21,13 +21,15 @@ export async function POST({ request }){
   const auth = await requireAdmin(request);
   if(!auth.ok) return auth.response;
   const body = await request.json();
-  const { usuario, password, role, nombre, apellido, telefono } = body || {};
+    // debug: log incoming body to help troubleshoot missing fields
+    try{ console.log('[api/usuarios] incoming body:', JSON.stringify(body)); }catch(e){ console.log('[api/usuarios] incoming body (unserializable)'); }
+    const { usuario, password, role, nombre, apellido, phone } = body || {};
   if(!usuario || !password) return new Response(JSON.stringify({ ok:false, error:'usuario y password son requeridos' }), { status:400, headers:{ 'Content-Type':'application/json' } });
   const conn = await getConn();
   try{
     const hashed = await bcrypt.hash(password, 10);
     try{
-      const [res] = await conn.execute('INSERT INTO usuarios (usuario, password, role, nombre, apellido, telefono) VALUES (?, ?, ?, ?, ?, ?)', [usuario, hashed, role || 'user', nombre || null, apellido || null, telefono || null]);
+        const [res] = await conn.execute('INSERT INTO usuarios (usuario, password, role, nombre, apellido, phone) VALUES (?, ?, ?, ?, ?, ?)', [usuario, hashed, role || 'user', nombre || null, apellido || null, phone || null]);
       return new Response(JSON.stringify({ ok:true, id: res.insertId, usuario }), { status:201, headers:{ 'Content-Type':'application/json' } });
     }catch(err){
       if(err && err.code === 'ER_DUP_ENTRY') return new Response(JSON.stringify({ ok:false, error:'Usuario ya existe' }), { status:409, headers:{ 'Content-Type':'application/json' } });
