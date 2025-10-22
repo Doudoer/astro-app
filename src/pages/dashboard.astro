@@ -105,7 +105,7 @@ const title = 'Dashboard';
       <section id="view-inicio" class="view-section" style="background:var(--card);padding:28px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.06)">
         <h1>Bienvenido al Dashboard</h1>
         <p id="welcome">Cargando...</p>
-        <div id="stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:18px">
+  <div id="stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:18px">
           <div class="stat-card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06)">
             <div style="font-size:13px;color:var(--muted)">Productos en catálogo</div>
             <div id="stat-products" style="font-size:28px;font-weight:700;margin-top:8px">—</div>
@@ -114,13 +114,40 @@ const title = 'Dashboard';
             <div style="font-size:13px;color:var(--muted)">Clientes registrados</div>
             <div id="stat-clients" style="font-size:28px;font-weight:700;margin-top:8px">—</div>
           </div>
-          <div class="stat-card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06)">
-            <div style="font-size:13px;color:var(--muted)">Cotizaciones pendientes</div>
-            <div id="stat-quotes" style="font-size:28px;font-weight:700;margin-top:8px">—</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <div class="stat-card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06);min-width:200px;margin-right:12px">
+              <div style="font-size:13px;color:var(--muted)">Cotizaciones</div>
+              <div id="stat-quotes" style="font-size:20px;font-weight:700;margin-top:8px">—</div>
+              <div id="stat-quotes-amount" style="font-size:12px;color:var(--muted);margin-top:6px">— USD</div>
+            </div>
+            <div class="stat-card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06);min-width:200px">
+              <div style="font-size:13px;color:var(--muted)">Notas de Entregas</div>
+              <div id="stat-notes" style="font-size:20px;font-weight:700;margin-top:8px">—</div>
+              <div id="stat-notes-amount" style="font-size:12px;color:var(--muted);margin-top:6px">— USD</div>
+            </div>
           </div>
           <div class="stat-card" style="background:linear-gradient(180deg,#fff,#f8fafc);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06)">
-            <div style="font-size:13px;color:var(--muted)">Total ventas (USD)</div>
+            <div style="font-size:13px;color:var(--muted)">Total ventas (USD) - Mes</div>
             <div id="stat-sales" style="font-size:28px;font-weight:700;margin-top:8px">—</div>
+          </div>
+          </div>
+          <!-- Estadísticas avanzadas: colocado aquí para que permanezca dentro del mismo contenedor de tarjetas -->
+          <div style="grid-column:1/-1;margin-top:12px;">
+            <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
+              <div style="flex:1;min-width:220px;max-width:320px;background:linear-gradient(180deg,#fff,#f8fafc);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.04)">
+                <div style="font-size:13px;color:var(--muted)">Total ventas (ND)</div>
+                <div id="adv-total-ventas" style="font-size:22px;font-weight:700;margin-top:8px">— USD</div>
+                <div style="font-size:12px;color:var(--muted);margin-top:8px">Basado en Notas de Entrega (ND)</div>
+              </div>
+              <div style="flex:2;min-width:320px;max-width:760px;background:linear-gradient(180deg,#fff,#f8fafc);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.04)">
+                <div style="font-size:13px;color:var(--muted)">Totales últimos 12 meses</div>
+                <div id="adv-monthly" style="margin-top:8px;display:flex;gap:8px;align-items:end;overflow:auto;padding-bottom:8px"></div>
+              </div>
+              <div style="flex:1;min-width:260px;background:linear-gradient(180deg,#fff,#f8fafc);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.04)">
+                <div style="font-size:13px;color:var(--muted)">Top compradores (mes actual)</div>
+                <div id="adv-top-buyers" style="margin-top:8px"></div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -541,13 +568,36 @@ const title = 'Dashboard';
         try{
           const res = await fetch('/api/dashboard');
           const j = await res.json();
+          console.debug('loadDashboardStats -> response', j);
           if(j.ok && j.data){
-            document.getElementById('stat-products').textContent = j.data.productsCount;
-            document.getElementById('stat-clients').textContent = j.data.clientsCount;
-            document.getElementById('stat-quotes').textContent = j.data.pendingQuotesCount;
-            document.getElementById('stat-sales').textContent = (Number(j.data.totalSalesUsd) || 0).toFixed(2);
+            document.getElementById('stat-products').textContent = j.data.productsCount || 0;
+            document.getElementById('stat-clients').textContent = j.data.clientsCount || 0;
+            // map new aggregate fields returned by the API
+            const quotesVal = Number(j.data.totalQuotesUsd || 0);
+            const notesVal = Number(j.data.totalNotesUsd || 0);
+            const monthlyVal = Number(j.data.monthlySalesUsd || 0);
+            const quotesCount = Number(j.data.quotesCount || 0);
+            const notesCount = Number(j.data.notesCount || 0);
+            const quotesEl = document.getElementById('stat-quotes');
+            if(quotesEl) quotesEl.textContent = String(quotesCount);
+            const quotesAmtEl = document.getElementById('stat-quotes-amount');
+            if(quotesAmtEl) quotesAmtEl.textContent = (quotesVal || 0).toFixed(2) + ' USD';
+            const notesEl = document.getElementById('stat-notes');
+            if(notesEl) notesEl.textContent = String(notesCount);
+            const notesAmtEl = document.getElementById('stat-notes-amount');
+            if(notesAmtEl) notesAmtEl.textContent = (notesVal || 0).toFixed(2) + ' USD';
+            const salesEl = document.getElementById('stat-sales');
+            if(salesEl) salesEl.textContent = monthlyVal.toFixed(2);
+            // update advanced stats after basic stats are set
+            try{ if(typeof loadAdvancedStats === 'function') loadAdvancedStats(); }catch(e){ console.error('Failed to load advanced stats', e); }
           } else {
             console.warn('dashboard API error', j);
+            // show visible placeholders so cards don't look empty
+            try{ document.getElementById('stat-products').textContent = '—'; }catch(e){}
+            try{ document.getElementById('stat-clients').textContent = '—'; }catch(e){}
+            try{ document.getElementById('stat-quotes').textContent = '—'; }catch(e){}
+            try{ document.getElementById('stat-notes').textContent = '—'; }catch(e){}
+            try{ document.getElementById('stat-sales').textContent = '—'; }catch(e){}
           }
         }catch(err){ console.error('Error loading dashboard stats', err); }
       }
@@ -564,6 +614,66 @@ const title = 'Dashboard';
         if(document.hidden) stopDashAutoRefresh(); else { loadDashboardStats(); startDashAutoRefresh(); }
       });
       startDashAutoRefresh();
+
+      // --- Estadísticas avanzadas ---
+      async function loadAdvancedStats(){
+        try{
+          const res = await fetch('/api/dashboard');
+          const j = await res.json();
+          if(!(j.ok && j.data)) return;
+          const d = j.data;
+          // total ventas (ND)
+          const totalVentas = Number(d.totalVentasUsd || 0).toFixed(2);
+          const totalVentasEl = document.getElementById('adv-total-ventas');
+          if(totalVentasEl) totalVentasEl.textContent = `${totalVentas} USD`;
+
+          // monthly totals: render simple bars
+          const monthlyEl = document.getElementById('adv-monthly');
+          if(monthlyEl && Array.isArray(d.monthlyTotals)){
+            monthlyEl.innerHTML = '';
+            const maxVal = Math.max(1, ...d.monthlyTotals.map(m=> Number(m.total_usd || 0)));
+            d.monthlyTotals.forEach(m => {
+              const val = Number(m.total_usd || 0);
+              const bar = document.createElement('div');
+              bar.style.display = 'flex';
+              bar.style.flexDirection = 'column';
+              bar.style.alignItems = 'center';
+              bar.style.width = '48px';
+              const heightPct = Math.round((val / maxVal) * 100);
+              const inner = document.createElement('div');
+              inner.style.width = '100%';
+              inner.style.height = Math.max(6, Math.round(heightPct * 0.8)) + 'px';
+              inner.style.background = '#10b981';
+              inner.style.borderRadius = '4px';
+              inner.title = `${m.year}-${String(m.month).padStart(2,'0')}: ${val.toFixed(2)} USD`;
+              const lbl = document.createElement('div'); lbl.style.fontSize='11px'; lbl.style.marginTop='6px'; lbl.style.textAlign='center'; lbl.textContent = `${String(m.month).padStart(2,'0')}/${String(m.year).slice(-2)}`;
+              monthlyEl.appendChild(bar);
+              bar.appendChild(inner);
+              bar.appendChild(lbl);
+            });
+          }
+
+          // top buyers
+          const buyersEl = document.getElementById('adv-top-buyers');
+          if(buyersEl){
+            buyersEl.innerHTML = '';
+            if(Array.isArray(d.topBuyersThisMonth) && d.topBuyersThisMonth.length){
+              d.topBuyersThisMonth.forEach(b => {
+                const row = document.createElement('div');
+                row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center'; row.style.padding='6px 0'; row.style.borderBottom='1px solid #f1f1f1';
+                const left = document.createElement('div'); left.style.fontSize='13px'; left.textContent = b.client_name || (b.client_rif || 'Sin cliente');
+                const right = document.createElement('div'); right.style.fontSize='13px'; right.style.fontWeight='700'; right.textContent = (Number(b.total_usd)||0).toFixed(2) + ' USD';
+                row.appendChild(left); row.appendChild(right);
+                buyersEl.appendChild(row);
+              });
+            } else {
+              buyersEl.innerHTML = '<div style="color:var(--muted)">No hay compras en el mes.</div>';
+            }
+          }
+        }catch(err){ console.error('Error cargando estadísticas avanzadas', err); }
+      }
+      // cargar junto al dashboard
+      loadAdvancedStats();
 
       async function fetchClients(){
         try{
@@ -1214,11 +1324,15 @@ const title = 'Dashboard';
             const clientRif = j.data.cliente_rif || j.data.rif || j.data.rif_ci || '';
             const clientPhone = j.data.cliente_phone || j.data.phone || j.data.telefono || j.data.tel || j.data.contact_phone || '';
             const clientAddress = j.data.cliente_address || j.data.address || j.data.direccion || j.data.contact_address || '';
+            // si el RIF comienza con 'V' asumimos persona natural: usar etiquetas NOMBRE / CEDULA
+            const isNatural = /^\s*V\b[-\s]?/i.test(String(clientRif||''));
+            const nameLabel = isNatural ? 'NOMBRE' : 'Empresa';
+            const rifLabel = isNatural ? 'CEDULA' : 'RIF';
             const clientHtml = `
               <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
                 <div style="flex:1;font-size:14px;line-height:1.35">
-                  <div><strong>Empresa:</strong> ${clientName || '&mdash;'}</div>
-                  <div><strong>RIF:</strong> ${clientRif || '&mdash;'}</div>
+                  <div><strong>${nameLabel}:</strong> ${clientName || '&mdash;'}</div>
+                  <div><strong>${rifLabel}:</strong> ${clientRif || '&mdash;'}</div>
                   <div><strong>Teléfono:</strong> ${clientPhone || '&mdash;'}</div>
                   <div><strong>Dirección:</strong> ${clientAddress || '&mdash;'}</div>
                 </div>
@@ -1231,23 +1345,41 @@ const title = 'Dashboard';
 
             const logoUrl = (typeof location !== 'undefined') ? (location.origin + '/src/img/logo.png') : '/src/img/logo.png'; // usar la ruta proporcionada por el usuario
             const printable = `
-              <div style="font-family:Arial,Helvetica,sans-serif;color:#111">
-                <div style="text-align:center;margin-bottom:8px"><img src="${logoUrl}" alt="logo" style="max-height:80px"/></div>
-                <div style="text-align:center;font-weight:700;margin-bottom:6px">J-40048985-7</div>
-                <h2 style="text-align:center;margin:6px 0">Nota de Entrega</h2>
-                <div style="border:1px solid #000;padding:10px;margin-bottom:12px">${clientHtml}</div>
-                <table style="width:100%;border-collapse:collapse;margin-bottom:12px"><thead><tr style="background:#f3f3f3"><th style="border:1px solid #000;padding:8px">CODIGO</th><th style="border:1px solid #000;padding:8px">DESCRIPCIÓN</th><th style="border:1px solid #000;padding:8px;text-align:center">CANT</th><th style="border:1px solid #000;padding:8px;text-align:right">PRECIO UNITARIO</th><th style="border:1px solid #000;padding:8px;text-align:right">TOTAL</th></tr></thead><tbody>${itemsHtml}</tbody></table>
+              <div style="font-family:Arial,Helvetica,sans-serif;color:#111;font-size:11px">
+                <div style="text-align:center;margin-bottom:6px"><img src="${logoUrl}" alt="logo" style="max-height:72px"/></div>
+                <div style="text-align:center;font-weight:700;margin-bottom:6px;font-size:11px">J-40048985-7</div>
+                <h2 style="text-align:center;margin:6px 0;font-size:11px">Nota de Entrega</h2>
+                <div style="border:1px solid #000;padding:8px;margin-bottom:10px;font-size:11px">${clientHtml}</div>
+                <table style="width:100%;border-collapse:collapse;margin-bottom:10px;font-size:11px">
+                  <colgroup>
+                    <col style="width:8%" />
+                    <col style="width:56%" />
+                    <col style="width:7%" />
+                    <col style="width:auto;min-width:80px" />
+                    <col style="width:auto;min-width:80px" />
+                  </colgroup>
+                  <thead>
+                    <tr style="background:#f3f3f3">
+                      <th style="border:1px solid #000;padding:6px;text-align:left">CODIGO</th>
+                      <th style="border:1px solid #000;padding:6px;text-align:left">DESCRIPCIÓN</th>
+                      <th style="border:1px solid #000;padding:6px;text-align:center">CANT</th>
+                      <th style="border:1px solid #000;padding:6px;text-align:right">PRECIO UNITARIO</th>
+                      <th style="border:1px solid #000;padding:6px;text-align:right">TOTAL</th>
+                    </tr>
+                  </thead>
+                  <tbody>${itemsHtml}</tbody>
+                </table>
                 ${totalsHtml}
                 <!-- Observaciones: incluir nota sobre IVA si el documento está en USD -->
                 ${(() => {
                   const obs = (currency === 'USD') ? 'Estos precios no incluyen IVA' : (j.data.observaciones || '');
-                  const obsHtml = obs ? `<div style="font-size:13px;color:#111">${obs}</div>` : '<div style="height:1px">&nbsp;</div>';
-                  return `<div style="margin-top:12px;border:1px solid #000;padding:8px;min-height:60px"><strong>OBSERVACIONES:</strong>${obsHtml}</div>`;
+                  const obsHtml = obs ? `<div style="font-size:12px;color:#111">${obs}</div>` : '<div style="height:1px">&nbsp;</div>';
+                  return `<div style="margin-top:12px;border:1px solid #000;padding:8px;min-height:60px;font-size:12px"><strong>OBSERVACIONES:</strong>${obsHtml}</div>`;
                 })()}
-                <div style="margin-top:14px;font-size:12px;color:#666;text-align:center;border-top:1px solid #ddd;padding-top:8px">
+                <div style="margin-top:12px;font-size:11px;color:#666;text-align:center;border-top:1px solid #ddd;padding-top:8px">
                   <div>Av 18 La limpia Sector Miranda la Florida casa 95A-78 - Maracaibo Edo. Zulia</div>
                   <div>Correo: confecciones.hermanos.cantos@hotmail.com &nbsp; / &nbsp; IG: @confeccioneshermanoscantos</div>
-                  <div>TlF: 0424-6550993 / 0424-6112097</div>
+                  <div>TIF: 0424-6550993 / 0424-6112097</div>
                 </div>
               </div>
             `;
