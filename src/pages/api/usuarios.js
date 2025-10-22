@@ -23,6 +23,13 @@ export async function POST({ request }){
   const body = await request.json();
     const { usuario, password, role, nombre, apellido, phone } = body || {};
   if(!usuario || !password) return new Response(JSON.stringify({ ok:false, error:'usuario y password son requeridos' }), { status:400, headers:{ 'Content-Type':'application/json' } });
+  // Server-side validation for phone: if provided, require 10 digits
+  if(phone){
+    const digits = String(phone).replace(/\D/g, '');
+    if(digits && !/^\d{10}$/.test(digits)){
+      return new Response(JSON.stringify({ ok:false, error:'Teléfono inválido: se requieren 10 dígitos (ej: (412)-1234567)' }), { status:400, headers:{ 'Content-Type':'application/json' } });
+    }
+  }
   const conn = await getConn();
   try{
     const hashed = await bcrypt.hash(password, 10);

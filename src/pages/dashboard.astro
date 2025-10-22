@@ -631,7 +631,9 @@ const title = 'Dashboard';
             <h3>Crear usuario</h3>
             <div style="margin-top:8px;display:grid;grid-template-columns:1fr 160px;gap:8px"><div><label>Usuario</label><input id="newUserUsuario" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div><div><label>Rol</label><select id="newUserRole" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px"><option value="user">user</option><option value="admin">admin</option></select></div></div>
             <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label>Nombre</label><input id="newUserNombre" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div><div><label>Apellido</label><input id="newUserApellido" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div></div>
-            <div style="margin-top:8px"><label>Teléfono</label><input id="newUserTelefono" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div>
+            <div style="margin-top:8px"><label>Teléfono</label><input id="newUserTelefono" aria-describedby="newUserTelefonoHelp" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" />
+            <div id="newUserTelefonoHelp" class="input-help hidden">&nbsp;</div>
+            </div>
             <div style="margin-top:8px"><label>Contraseña</label><input id="newUserPassword" type="password" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div>
             <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end"><button id="saveNewUser" class="btn-primary">Crear</button><button id="cancelCreateUser" class="btn-secondary">Cancelar</button></div>
             <div id="createUserResult" style="margin-top:8px;color:var(--muted)"></div>
@@ -676,11 +678,17 @@ const title = 'Dashboard';
       const out = document.getElementById('createUserResult'); out.textContent='';
       if(!usuario || !password) return out.textContent='Usuario y contraseña requeridos';
     try{
-    // validate telefono format: (DDD)-XXXXXXX
+    // validate telefono format: must be 10 digits if provided
     const phoneRaw = telefono || '';
     const phoneDigits = phoneRaw.replace(/\D/g,'');
+    const phoneHelp = document.getElementById('newUserTelefonoHelp');
+    const phoneInputEl = document.getElementById('newUserTelefono');
+    // clear previous errors
+    if(phoneHelp){ phoneHelp.classList.add('hidden'); phoneHelp.textContent=''; }
+    if(phoneInputEl){ phoneInputEl.classList.remove('input-error'); }
     if(phoneDigits && !/^\d{10}$/.test(phoneDigits)){
-      out.textContent = 'Teléfono debe ser 10 dígitos (ej: (412)-1234567)';
+      if(phoneHelp){ phoneHelp.classList.remove('hidden'); phoneHelp.textContent = 'Teléfono debe ser 10 dígitos (ej: (412)-1234567)'; }
+      if(phoneInputEl){ phoneInputEl.classList.add('input-error'); phoneInputEl.focus(); }
       return;
     }
     const payload = { usuario, password, role, nombre, apellido, phone: telefono };
@@ -692,7 +700,11 @@ const title = 'Dashboard';
         try{
           const newTel = document.getElementById('newUserTelefono');
           function formatPhoneInput(v){ const d = String(v||'').replace(/\D/g,''); if(d.length<=3) return `(${d})-`; const a=d.slice(0,3); const b=d.slice(3,10); return `(${a})-${b}`; }
-          if(newTel){ newTel.addEventListener('input', (e)=>{ const v = e.target.value.replace(/\D/g,''); e.target.value = formatPhoneInput(v); }); newTel.addEventListener('blur', (e)=>{ e.target.value = formatPhoneInput(e.target.value); }); }
+          if(newTel){ newTel.addEventListener('input', (e)=>{ const v = e.target.value.replace(/\D/g,''); e.target.value = formatPhoneInput(v);
+              // clear inline error while typing
+              const help = document.getElementById('newUserTelefonoHelp'); if(help){ help.classList.add('hidden'); help.textContent=''; }
+              newTel.classList.remove('input-error');
+            }); newTel.addEventListener('blur', (e)=>{ e.target.value = formatPhoneInput(e.target.value); }); }
         }catch(e){}
         })();
 
