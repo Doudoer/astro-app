@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
-import { requireAdmin } from '../_auth.js';
+import { requireAdmin, requireAuth } from '../_auth.js';
 dotenv.config();
 
 export const prerender = false;
@@ -16,7 +16,8 @@ async function getConn(){
 }
 
 export async function PUT({ params, request }){
-  const auth = await requireAdmin(request);
+  // allow authenticated users to update client info
+  const auth = await requireAuth(request);
   if(!auth.ok) return auth.response;
   const id = params.id;
   const body = await request.json();
