@@ -21,8 +21,6 @@ export async function POST({ request }){
   const auth = await requireAdmin(request);
   if(!auth.ok) return auth.response;
   const body = await request.json();
-    // debug: log incoming body to help troubleshoot missing fields
-    try{ console.log('[api/usuarios] incoming body:', JSON.stringify(body)); }catch(e){ console.log('[api/usuarios] incoming body (unserializable)'); }
     const { usuario, password, role, nombre, apellido, phone } = body || {};
   if(!usuario || !password) return new Response(JSON.stringify({ ok:false, error:'usuario y password son requeridos' }), { status:400, headers:{ 'Content-Type':'application/json' } });
   const conn = await getConn();

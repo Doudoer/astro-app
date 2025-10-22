@@ -123,7 +123,11 @@ const title = 'Dashboard';
       <div style="display:flex;align-items:center;gap:8px">
   <div class="hamburger" id="hamburger" role="button" aria-controls="mobileMenu" aria-expanded="false" aria-label="Abrir menú" tabindex="0">☰</div>
   <div class="profile">
-  <div class="profilebutton" id="profileBtn" role="button" aria-haspopup="true" aria-expanded="false" tabindex="0">Perfil ▾</div>
+      <div id="headerAvatar" class="avatar small" title="Perfil">--</div>
+      <div id="headerRoleBadge" class="role-badge user" style="margin-right:6px">user</div>
+      <div>
+        <div class="profilebutton" id="profileBtn" role="button" aria-haspopup="true" aria-expanded="false" tabindex="0">Perfil ▾</div>
+      </div>
         <div class="dropdown" id="profileMenu">
           <a href="#" id="changePwd"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 15v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M16 11V9a4 4 0 1 0-8 0v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Cambiar contraseña</a>
           <a href="#" id="createUser"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 14c1.657 0 3 1.343 3 3v1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M8 14a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke="currentColor" stroke-width="1.2"/><path d="M20 8v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Crear nuevos usuarios</a>
@@ -281,7 +285,7 @@ const title = 'Dashboard';
         <h1>Documentos</h1>
         <div style="margin-top:12px">
           <!-- Grid of document cards -->
-          <div id="docsGrid" style="display:grid;grid-template-columns:1fr;gap:16px;margin-top:12px"></div>
+          <div id="docsGrid" class="cards-grid" style="display:grid;margin-top:12px"></div>
         </div>
         <!-- modal sencillo -->
         <div id="docModal" role="dialog" aria-hidden="true" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;padding:20px">
@@ -316,7 +320,7 @@ const title = 'Dashboard';
         </div>
 
   <!-- Grid of product cards -->
-  <div id="productsGrid" style="display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px"></div>
+  <div id="productsGrid" class="cards-grid" style="display:grid;margin-top:12px"></div>
         <!-- Product edit modal -->
         <div id="productModal" role="dialog" aria-hidden="true" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;padding:20px">
           <div style="background:var(--card);max-width:420px;width:100%;padding:18px;border-radius:10px;box-shadow:0 10px 40px rgba(2,6,23,0.2);position:relative">
@@ -365,7 +369,7 @@ const title = 'Dashboard';
         </div>
 
   <!-- Grid of client cards -->
-  <div id="clientsGrid" style="display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px"></div>
+  <div id="clientsGrid" class="cards-grid" style="display:grid;margin-top:12px"></div>
         <!-- Client edit modal -->
         <div id="clientModal" role="dialog" aria-hidden="true" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;padding:20px">
           <div style="background:var(--card);max-width:520px;width:100%;padding:18px;border-radius:10px;box-shadow:0 10px 40px rgba(2,6,23,0.2);position:relative">
@@ -400,6 +404,20 @@ const title = 'Dashboard';
       const profileBtn = document.getElementById('profileBtn');
       const profileMenu = document.getElementById('profileMenu');
         profileBtn.addEventListener('click', ()=> {
+          // ensure profile header exists inside dropdown
+          try{
+            if(profileMenu && !profileMenu.querySelector('.profile-head')){
+              const headerAvatarInner = document.getElementById('headerAvatar') ? document.getElementById('headerAvatar').textContent : '';
+              const headerName = document.getElementById('welcome') ? document.getElementById('welcome').textContent.replace(/^Hola,\s*/,'') : '';
+              const headerRole = document.getElementById('headerRoleBadge') ? document.getElementById('headerRoleBadge').textContent : '';
+              const ph = document.createElement('div'); ph.className='profile-head';
+              ph.innerHTML = `<div class="avatar avatar-lg">${headerAvatarInner}</div><div class="profile-info"><div class="profile-name">${headerName}</div><div class="profile-role">${headerRole}</div></div>`;
+              profileMenu.insertBefore(ph, profileMenu.firstChild);
+              // style the new avatar from the headerAvatar element
+              const srcAvatar = document.getElementById('headerAvatar');
+              if(srcAvatar){ const newAv = profileMenu.querySelector('.avatar.avatar-lg'); if(newAv) newAv.style.background = srcAvatar.style.background; }
+            }
+          }catch(e){}
           const open = profileMenu.style.display !== 'block';
           profileMenu.style.display = open ? 'block' : 'none';
           profileBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -540,6 +558,25 @@ const title = 'Dashboard';
           const fullName = ((data.nombre || '') + ' ' + (data.apellido || '')).trim();
           const nameToShow = fullName || data.usuario;
           document.getElementById('welcome').textContent = `Hola, ${nameToShow} — Rol: (${data.role || 'user'})`;
+          // update header avatar and role badge
+          try{
+            const headerAvatar = document.getElementById('headerAvatar');
+            const headerRoleBadge = document.getElementById('headerRoleBadge');
+            const fn = (data.nombre || '').trim();
+            const ln = (data.apellido || '').trim();
+            const initials = ((fn.charAt(0) || data.usuario.charAt(0) || '').toUpperCase() + (ln.charAt(0) || '').toUpperCase()).slice(0,2) || (data.usuario || '').slice(0,2).toUpperCase();
+            if(headerAvatar) headerAvatar.textContent = initials;
+              if(headerRoleBadge) { headerRoleBadge.textContent = data.role || 'user'; headerRoleBadge.className = 'role-badge ' + ((data.role==='admin') ? 'admin' : 'user'); }
+              // compute a simple gradient based on username for avatar background
+              try{
+                function stringToHue(s){ let h=0; for(let i=0;i<s.length;i++){ h = (h*31 + s.charCodeAt(i)) % 360; } return h; }
+                const hue = stringToHue(data.usuario || (data.nombre||'') + (data.apellido||''));
+                const bg = `linear-gradient(135deg,hsl(${hue} 70% 40%), hsl(${(hue+60)%360} 70% 45%))`;
+                if(headerAvatar) headerAvatar.style.background = bg;
+                // make avatar open profile menu when clicked
+                if(headerAvatar){ headerAvatar.style.cursor = 'pointer'; headerAvatar.addEventListener('click', ()=>{ profileBtn.click(); }); }
+              }catch(e){}
+          }catch(e){}
           // role based UI
           // expose role to client-side code
           window.currentUserRole = data.role || 'user';
@@ -638,30 +675,56 @@ const title = 'Dashboard';
   const telefono = document.getElementById('newUserTelefono').value.trim();
       const out = document.getElementById('createUserResult'); out.textContent='';
       if(!usuario || !password) return out.textContent='Usuario y contraseña requeridos';
-  try{
+    try{
+    // validate telefono format: (DDD)-XXXXXXX
+    const phoneRaw = telefono || '';
+    const phoneDigits = phoneRaw.replace(/\D/g,'');
+    if(phoneDigits && !/^\d{10}$/.test(phoneDigits)){
+      out.textContent = 'Teléfono debe ser 10 dígitos (ej: (412)-1234567)';
+      return;
+    }
     const payload = { usuario, password, role, nombre, apellido, phone: telefono };
-    try{ console.debug('Creating user, payload:', payload); }catch(e){ }
     const r = await fetch('/api/usuarios', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(payload) }); const j = await r.json(); if(j.ok){ out.textContent='Usuario creado'; window.showToast('Usuario creado','success'); setTimeout(()=> window.closeModal(document.getElementById('createUserModal')), 600); } else out.textContent = j.error || 'Error'; }catch(err){ out.textContent = 'Error'; }
     }); }
         const cancelCreate = document.getElementById('cancelCreateUser'); if(cancelCreate) cancelCreate.addEventListener('click', ()=> window.closeModal(document.getElementById('createUserModal')));
         const closeCreate = document.getElementById('closeCreateUser'); if(closeCreate) closeCreate.addEventListener('click', ()=> window.closeModal(document.getElementById('createUserModal')));
+        // phone formatting for create-user modal
+        try{
+          const newTel = document.getElementById('newUserTelefono');
+          function formatPhoneInput(v){ const d = String(v||'').replace(/\D/g,''); if(d.length<=3) return `(${d})-`; const a=d.slice(0,3); const b=d.slice(3,10); return `(${a})-${b}`; }
+          if(newTel){ newTel.addEventListener('input', (e)=>{ const v = e.target.value.replace(/\D/g,''); e.target.value = formatPhoneInput(v); }); newTel.addEventListener('blur', (e)=>{ e.target.value = formatPhoneInput(e.target.value); }); }
+        }catch(e){}
         })();
 
         // view users list
         async function loadUsersList(){ const root = document.getElementById('usersList'); if(!root) return; root.innerHTML = 'Cargando...'; try{ const r = await fetch('/api/usuarios'); const j = await r.json(); if(j.ok && Array.isArray(j.data)){
               root.innerHTML = '';
               j.data.forEach(u => {
-                const el = document.createElement('div');
-                el.style.display='flex';
-                el.style.justifyContent='space-between';
-                el.style.alignItems='center';
-                el.style.padding='8px';
-                el.style.borderBottom='1px solid #f1f1f1';
-                // include nombre, apellido and telefono in the small meta line
-                const phoneDisplay = u.phone || u.telefono || '';
-                el.innerHTML = `<div><strong>${u.usuario}</strong><div style="font-size:12px;color:var(--muted)">${u.role}${u.nombre ? ' — ' + u.nombre : ''}${u.apellido ? ' ' + u.apellido : ''}${phoneDisplay ? ' • ' + phoneDisplay : ''}</div></div><div style="display:flex;gap:8px"><button class="btn-ghost" data-id="${u.id}" data-usuario="${u.usuario}">Reset pwd</button></div>`;
-                root.appendChild(el);
-              });
+                    const el = document.createElement('div');
+                    el.className = 'user-row';
+                    el.style.justifyContent='space-between';
+                    el.style.alignItems='center';
+                    el.style.padding='8px';
+                    el.style.borderBottom='1px solid #f1f1f1';
+                    // compute initials for avatar
+                    const nombre = (u.nombre || '').trim();
+                    const apellido = (u.apellido || '').trim();
+                    const initials = ((nombre.charAt(0) || u.usuario.charAt(0) || '').toUpperCase() + (apellido.charAt(0) || '').toUpperCase()).slice(0,2) || (u.usuario || '').slice(0,2).toUpperCase();
+                    const phoneDisplay = u.phone || u.telefono || '';
+                    el.innerHTML = `
+                      <div style="display:flex;align-items:center;gap:12px">
+                        <div class="avatar small" aria-hidden="true">${initials}</div>
+                        <div class="user-meta">
+                          <strong>${u.usuario}</strong>
+                          <div class="user-line">${u.role}${nombre ? ' — ' + nombre : ''}${apellido ? ' ' + apellido : ''}${phoneDisplay ? ' • ' + phoneDisplay : ''}</div>
+                        </div>
+                      </div>
+                      <div style="display:flex;gap:8px;align-items:center">
+                        <div class="role-badge ${u.role === 'admin' ? 'admin' : 'user'}" style="margin-right:8px">${u.role}</div>
+                        <button class="btn-ghost" data-id="${u.id}" data-usuario="${u.usuario}">Reset pwd</button>
+                      </div>`;
+                    root.appendChild(el);
+                  });
             // attach reset handlers (admin-only)
             root.querySelectorAll('button[data-id]').forEach(b=> b.addEventListener('click', async ()=>{ const id=b.dataset.id; const usuario=b.dataset.usuario; if(!confirm(`Resetear contraseña de ${usuario}?`)) return; try{ const r = await fetch(`/api/usuarios/${id}/reset`, { method:'POST' }); const j = await r.json(); if(j.ok) window.showToast('Contraseña reseteada','success'); else window.showToast(j.error||'Error','error'); }catch(e){ window.showToast('Error','error'); } }));
         } else root.innerHTML = 'No hay usuarios'; }catch(err){ root.innerHTML = 'Error cargando'; } }
