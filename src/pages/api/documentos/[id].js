@@ -18,7 +18,7 @@ async function getConn(){
 export async function GET({ params }){
   const id = params.id;
   const conn = await getConn();
-  const [rows] = await conn.execute('SELECT d.*, c.name as cliente FROM documents d LEFT JOIN clients c ON d.cliente_id = c.id WHERE d.id = ?', [id]);
+  const [rows] = await conn.execute('SELECT d.*, c.name as cliente, c.rif_ci as cliente_rif, c.phone as cliente_phone, c.address as cliente_address FROM documents d LEFT JOIN clients c ON d.cliente_id = c.id WHERE d.id = ?', [id]);
   if(rows.length === 0){ await conn.end(); return new Response(JSON.stringify({ ok:false, error:'No encontrado' }), { status:404 }); }
   const doc = rows[0];
   const [items] = await conn.execute('SELECT di.*, p.product_code FROM document_items di LEFT JOIN products p ON di.product_id = p.id WHERE di.document_id = ?', [id]);

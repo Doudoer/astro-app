@@ -32,6 +32,22 @@ const title = 'Dashboard';
   .dropdown a:hover svg{transform:translateX(4px)}
   .dropdown a:hover{background:#f3f4f6;color:var(--text)}
   .dropdown a + a{border-top:1px solid #f1f1f1}
+  /* Botones: pildora verde para primario, pildora blanca para secundario */
+  button, .btn { display:inline-flex; align-items:center; gap:8px; font-size:14px; padding:10px 18px; border-radius:999px; border:0; cursor:pointer; color:#fff; text-decoration:none; background:#10b981; box-shadow: 0 6px 18px rgba(2,6,23,0.04) }
+  button:focus, .btn:focus{ outline:2px solid rgba(16,185,129,0.18); outline-offset:4px }
+  .btn-success{ background:#10b981; color:#fff }
+  .btn-danger{ background:#ef4444; color:#fff }
+  /* Secondary: white pill with subtle border and dark text */
+  .btn-secondary{ background:#ffffff; color:var(--text); border:1px solid #e6e7eb; box-shadow: 0 4px 10px rgba(2,6,23,0.04); }
+  .btn-success:hover, .btn-danger:hover, .btn-primary:hover, .btn-secondary:hover{ opacity:0.95; transform:translateY(-1px) }
+  button.btn-secondary{ color:var(--text); }
+  /* focus styles */
+  .btn-success:focus, .btn-danger:focus, .btn-primary:focus, .btn-secondary:focus{ outline:2px solid rgba(17,24,39,0.08); outline-offset:4px }
+  /* modal entry animation */
+  @keyframes modalIn{ from{opacity:0;transform:translateY(-6px) scale(.995)} to{opacity:1;transform:translateY(0) scale(1)} }
+  #productModal > div, #clientModal > div, #docModal > div{ animation: modalIn 180ms ease both; transform-origin: center top }
+  /* button active press */
+  .btn-success:active, .btn-danger:active, .btn-primary:active{ transform:translateY(0); opacity:0.92 }
       .container{max-width:1100px;margin:28px auto;padding:0 20px}
 
       /* Responsive */
@@ -157,7 +173,7 @@ const title = 'Dashboard';
               <input id="unitPrice" type="number" step="0.0001" value="0.00" style="width:100%;padding:10px;margin-top:6px;border:1px solid #e6e7eb;border-radius:8px" />
             </div>
             <div>
-              <button type="button" id="addItem" style="background:#111827;color:#fff;padding:10px 12px;border-radius:8px;border:0">Agregar</button>
+              <button type="button" id="addItem" class="btn-primary">Agregar</button>
             </div>
           </div>
 
@@ -185,8 +201,8 @@ const title = 'Dashboard';
           </div>
 
           <div style="margin-top:12px;display:flex;gap:10px">
-            <button type="submit" class="btn-primary" style="background:#10b981;color:#fff;padding:10px 14px;border-radius:8px;border:0">Guardar documento</button>
-            <button type="button" id="cancelCreate" class="btn-secondary" style="background:#f3f4f6;padding:10px 14px;border-radius:8px;border:0">Cancelar</button>
+            <button type="submit" class="btn-success">Guardar documento</button>
+            <button type="button" id="cancelCreate" class="btn-secondary">Cancelar</button>
           </div>
           <div id="createResult" aria-live="polite" style="margin-top:12px"></div>
         </form>
@@ -203,11 +219,11 @@ const title = 'Dashboard';
         <!-- modal sencillo -->
         <div id="docModal" role="dialog" aria-hidden="true" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;padding:20px">
           <div style="background:var(--card);max-width:760px;width:100%;padding:18px;border-radius:10px;box-shadow:0 10px 40px rgba(2,6,23,0.2);position:relative">
-            <button id="closeDocModal" style="position:absolute;right:10px;top:10px">Cerrar</button>
+              <button id="closeDocModal" class="btn-secondary" style="position:absolute;right:10px;top:10px">Cerrar</button>
             <h2 id="modalDocNumber">Documento</h2>
             <div id="modalBody">Cargando...</div>
             <div style="margin-top:12px;display:flex;gap:10px;justify-content:flex-end">
-              <button id="deleteDoc" style="background:#ef4444;color:#fff;padding:8px 12px;border-radius:8px;border:0">Eliminar</button>
+              <button id="deleteDoc" class="btn-danger">Eliminar</button>
             </div>
           </div>
         </div>
@@ -216,10 +232,7 @@ const title = 'Dashboard';
       <section id="view-inventario" class="view-section" style="display:none;background:var(--card);padding:28px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.06)">
         <h1>Inventario</h1>
         <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
-          <div style="flex:1;min-width:180px">
-            <label for="newCode">Código</label>
-            <input id="newCode" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" />
-          </div>
+          <!-- código generado automáticamente (no editable por el usuario) -->
           <div style="flex:2;min-width:220px">
             <label for="newDesc">Descripción</label>
             <input id="newDesc" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" />
@@ -228,13 +241,29 @@ const title = 'Dashboard';
             <label for="newPrice">Precio USD</label>
             <input id="newPrice" type="number" step="0.01" value="0.00" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" />
           </div>
-          <div><button id="addProduct" style="background:#10b981;color:#fff;padding:10px 12px;border-radius:8px;border:0">Agregar producto</button></div>
+          <div><button id="addProduct" class="btn-success">Agregar producto</button></div>
+          <div style="min-width:180px">
+            <label for="generatedCode">Código generado</label>
+            <input id="generatedCode" readonly style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px;background:#f3f4f6" />
+          </div>
         </div>
 
         <table id="productsTable" style="width:100%;margin-top:12px;border-collapse:collapse">
           <thead><tr style="text-align:left;border-bottom:1px solid #eef2f6"><th>ID</th><th>Código</th><th>Descripción</th><th>Precio USD</th><th></th></tr></thead>
           <tbody></tbody>
         </table>
+        <!-- Product edit modal -->
+        <div id="productModal" role="dialog" aria-hidden="true" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;padding:20px">
+          <div style="background:var(--card);max-width:420px;width:100%;padding:18px;border-radius:10px;box-shadow:0 10px 40px rgba(2,6,23,0.2);position:relative">
+            <button id="closeProductModal" class="btn-secondary" style="position:absolute;right:10px;top:10px">Cerrar</button>
+            <h2>Editar producto</h2>
+            <input id="editProdId" type="hidden" />
+            <div style="margin-top:8px"><label>Código</label><input id="editProdCode" readonly style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px;background:#f3f4f6" /></div>
+            <div style="margin-top:8px"><label>Descripción</label><input id="editProdDesc" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div>
+            <div style="margin-top:8px"><label>Precio USD</label><input id="editProdPrice" type="number" step="0.01" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div>
+            <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end"><button id="saveProdModal" class="btn-success">Guardar</button><button id="cancelProdModal" class="btn-danger">Cancelar</button></div>
+          </div>
+        </div>
       </section>
 
       <section id="view-clientes" class="view-section" style="display:none;background:var(--card);padding:28px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.06)">
@@ -244,9 +273,20 @@ const title = 'Dashboard';
             <label for="clientName">Nombre</label>
             <input id="clientName" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" />
           </div>
-          <div style="width:160px">
-            <label for="clientRif">RIF/CI</label>
-            <input id="clientRif" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" />
+          <div style="width:220px;display:flex;gap:8px;align-items:center">
+            <div style="width:70px">
+              <label for="clientRifType">Tipo</label>
+              <select id="clientRifType" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px">
+                <option value="V">V</option>
+                <option value="E">E</option>
+                <option value="J">J</option>
+                <option value="G">G</option>
+              </select>
+            </div>
+            <div style="flex:1">
+              <label for="clientRifNumber">RIF/CI</label>
+              <input id="clientRifNumber" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" />
+            </div>
           </div>
           <div style="width:160px">
             <label for="clientPhone">Teléfono</label>
@@ -256,15 +296,42 @@ const title = 'Dashboard';
             <label for="clientAddress">Dirección</label>
             <input id="clientAddress" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" />
           </div>
-          <div><button id="addClient" style="background:#10b981;color:#fff;padding:10px 12px;border-radius:8px;border:0">Agregar cliente</button></div>
+          <div><button id="addClient" class="btn-success">Agregar cliente</button></div>
         </div>
 
         <table id="clientsTable" style="width:100%;margin-top:12px;border-collapse:collapse">
           <thead><tr style="text-align:left;border-bottom:1px solid #eef2f6"><th>ID</th><th>Nombre</th><th>RIF/CI</th><th>Teléfono</th><th>Dirección</th><th></th></tr></thead>
           <tbody></tbody>
         </table>
+        <!-- Client edit modal -->
+        <div id="clientModal" role="dialog" aria-hidden="true" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;padding:20px">
+          <div style="background:var(--card);max-width:520px;width:100%;padding:18px;border-radius:10px;box-shadow:0 10px 40px rgba(2,6,23,0.2);position:relative">
+            <button id="closeClientModal" class="btn-secondary" style="position:absolute;right:10px;top:10px">Cerrar</button>
+            <h2>Editar cliente</h2>
+            <input id="editClientId" type="hidden" />
+            <div style="margin-top:8px;display:flex;gap:8px;align-items:end">
+              <div style="flex:1;min-width:200px"><label>Nombre</label><input id="editClientName" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div>
+              <div style="width:120px"><label>Tipo</label><select id="editClientRifType" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px"><option value="V">V</option><option value="E">E</option><option value="J">J</option><option value="G">G</option></select></div>
+              <div style="flex:1;min-width:160px"><label>RIF/CI</label><input id="editClientRifNumber" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div>
+            </div>
+            <div style="margin-top:8px;display:flex;gap:8px;align-items:end">
+              <div style="width:180px"><label>Teléfono</label><input id="editClientPhone" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div>
+              <div style="flex:1;min-width:200px"><label>Dirección</label><input id="editClientAddress" style="width:100%;padding:8px;border:1px solid #e6e7eb;border-radius:8px" /></div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end"><button id="saveClientModal" class="btn-success">Guardar</button><button id="cancelClientModal" class="btn-danger">Cancelar</button></div>
+          </div>
+        </div>
       </section>
     </main>
+
+    <!-- Confirm modal (reutilizable) -->
+    <div id="confirmModal" role="dialog" aria-hidden="true" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;padding:20px">
+      <div style="background:var(--card);max-width:420px;width:100%;padding:18px;border-radius:10px;box-shadow:0 10px 40px rgba(2,6,23,0.2);position:relative">
+        <h3 id="confirmTitle">Confirmar</h3>
+        <div id="confirmMessage" style="margin-top:8px;color:var(--muted)">¿Confirmar acción?</div>
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end"><button id="confirmOk" class="btn-success">Confirmar</button><button id="confirmCancel" class="btn-secondary">Cancelar</button></div>
+      </div>
+    </div>
 
   <script>
       const profileBtn = document.getElementById('profileBtn');
@@ -334,6 +401,10 @@ const title = 'Dashboard';
       mobileLinks.forEach(m=> m.classList.toggle('active', m.dataset.view === name));
       // update hash for back/forward support
       history.replaceState(null,'', '#'+name);
+      // trigger loaders for the view so mobile selection also fetches data
+      try{ if(name === 'documentos' && typeof loadDocs === 'function') loadDocs(); }catch(e){}
+      try{ if(name === 'inventario' && typeof loadProducts === 'function') loadProducts(); }catch(e){}
+      try{ if(name === 'clientes' && typeof loadClients === 'function') loadClients(); }catch(e){}
     }
 
     navLinks.forEach(a=>{
@@ -359,6 +430,45 @@ const title = 'Dashboard';
     // show view from hash on load
     const initialHash = location.hash.replace('#','');
     if(initialHash) showView(initialHash);
+
+    // Modal helpers: open/close with focus restore and ESC handling
+    (function(){
+      let lastOpener = null;
+      function focusFirst(modal){
+        const focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if(focusable && focusable.length) focusable[0].focus();
+      }
+      window.openModal = function(modal, opener){
+        if(!modal) return; lastOpener = opener || document.activeElement; modal.style.display = 'flex'; modal.setAttribute('aria-hidden','false'); focusFirst(modal);
+        // attach ESC handler
+        modal.__esc = function(e){ if(e.key === 'Escape'){ window.closeModal(modal); } };
+        document.addEventListener('keydown', modal.__esc);
+      }
+      window.closeModal = function(modal){
+        if(!modal) return; modal.style.display = 'none'; modal.setAttribute('aria-hidden','true'); try{ document.removeEventListener('keydown', modal.__esc); }catch(e){}
+        if(lastOpener && typeof lastOpener.focus === 'function') lastOpener.focus(); lastOpener = null;
+      }
+    })();
+
+    // reusable confirm modal returning a Promise<boolean>
+    function showConfirm(message, title='Confirmar'){
+      return new Promise((resolve)=>{
+        const modal = document.getElementById('confirmModal');
+        const msg = document.getElementById('confirmMessage');
+        const t = document.getElementById('confirmTitle');
+        const ok = document.getElementById('confirmOk');
+        const cancel = document.getElementById('confirmCancel');
+        if(!modal || !ok || !cancel || !msg) return resolve(false);
+        msg.textContent = message || '';
+        if(t) t.textContent = title;
+        function cleanup(){ ok.removeEventListener('click', onOk); cancel.removeEventListener('click', onCancel); window.closeModal(modal); }
+        function onOk(){ cleanup(); resolve(true); }
+        function onCancel(){ cleanup(); resolve(false); }
+        ok.addEventListener('click', onOk);
+        cancel.addEventListener('click', onCancel);
+        window.openModal(modal, document.activeElement);
+      });
+    }
 
       async function loadSession(){
         const res = await fetch('/api/session');
@@ -673,7 +783,7 @@ const title = 'Dashboard';
           unitDisplay = (Number(tr.dataset.unitUsd) * ex).toFixed(2);
           totalDisplay = (Number(tr.dataset.totalUsd) * ex).toFixed(2);
         }
-        tr.innerHTML = `<td>${item.description || ''}</td><td>${item.quantity}</td><td>${unitDisplay}</td><td>${Number(item.discount||0).toFixed(2)}</td><td>${totalDisplay}</td><td><button type="button" class="removeItem">Eliminar</button></td>`;
+    tr.innerHTML = `<td>${item.description || ''}</td><td>${item.quantity}</td><td>${unitDisplay}</td><td>${Number(item.discount||0).toFixed(2)}</td><td>${totalDisplay}</td><td><button type="button" class="removeItem btn-danger">Eliminar</button></td>`;
   tr.querySelector('.removeItem').addEventListener('click', ()=>{ tr.remove(); recalc(); refreshRows(); });
         itemsTbody.appendChild(tr);
       }
@@ -765,37 +875,63 @@ const title = 'Dashboard';
     (function(){
       const productsTbody = document.querySelector('#productsTable tbody');
       const addBtn = document.getElementById('addProduct');
-      const newCode = document.getElementById('newCode');
-      const newDesc = document.getElementById('newDesc');
-      const newPrice = document.getElementById('newPrice');
-      const newStock = document.getElementById('newStock');
+  const newDesc = document.getElementById('newDesc');
+  const newPrice = document.getElementById('newPrice');
+  const newStock = document.getElementById('newStock');
+  const generatedCode = document.getElementById('generatedCode');
 
       async function loadProducts(){
         try{
+          if(generatedCode) generatedCode.value = '';
           const r = await fetch('/api/productos');
           const j = await r.json();
           productsTbody.innerHTML = '';
           if(j.ok && Array.isArray(j.data)){
             j.data.forEach(p => {
               const tr = document.createElement('tr');
-              tr.innerHTML = `<td>${p.id}</td><td>${p.product_code}</td><td>${p.description}</td><td>${Number(p.price_usd).toFixed(2)}</td><td><button class="editProd" data-id="${p.id}">Editar</button> <button class="delProd" data-id="${p.id}">Eliminar</button></td>`;
+              tr.innerHTML = `<td>${p.id}</td><td>${p.product_code}</td><td>${p.description}</td><td>${Number(p.price_usd).toFixed(2)}</td><td><button class="editProd btn-success" data-id="${p.id}" data-code="${p.product_code}" data-desc="${p.description}" data-price="${Number(p.price_usd).toFixed(2)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:6px"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Editar</button> <button class="delProd btn-danger" data-id="${p.id}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:6px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>Eliminar</button></td>`;
               productsTbody.appendChild(tr);
             });
             productsTbody.querySelectorAll('.delProd').forEach(b=> b.addEventListener('click', async ()=>{
               const id=b.dataset.id;
-              if(!confirm('Eliminar producto?')) return;
+              if(!(await showConfirm('Eliminar producto?'))) return;
               try{ const r = await fetch(`/api/productos/${id}`, { method:'DELETE' }); const j=await r.json(); if(j.ok){ window.showToast('Producto eliminado','success'); loadProducts(); } else window.showToast('Error al eliminar','error'); }catch(e){ window.showToast('Error al eliminar','error'); }
             }));
-            // inline edit handler
-            productsTbody.querySelectorAll('.editProd').forEach(b=> b.addEventListener('click', ()=>{
-              const id = b.dataset.id; const row = b.closest('tr'); if(row.dataset.editing) return; row.dataset.editing = '1';
-              const code = row.children[1].textContent; const desc = row.children[2].textContent; const price = row.children[3].textContent;
-              row.innerHTML = `<td>${id}</td><td><input class="inline-code" value="${code}" style="width:140px"/></td><td><input class="inline-desc" value="${desc}" style="width:100%"/></td><td><input class="inline-price" value="${price}" style="width:100px"/></td><td><button class="saveProd">Guardar</button> <button class="cancelProd">Cancelar</button></td>`;
-              row.querySelector('.cancelProd').addEventListener('click', ()=> loadProducts());
-              row.querySelector('.saveProd').addEventListener('click', async ()=>{
-                const nc = row.querySelector('.inline-code').value.trim(); const nd = row.querySelector('.inline-desc').value.trim(); const np = parseFloat(row.querySelector('.inline-price').value)||0;
-                try{ const r = await fetch(`/api/productos/${id}`, { method:'PUT', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ product_code: nc, description: nd, price_usd: np }) }); const j = await r.json(); if(j.ok){ window.showToast('Producto actualizado','success'); loadProducts(); } else window.showToast('Error al actualizar','error'); }catch(e){ window.showToast('Error al actualizar','error'); }
-              });
+            // modal handlers (save/cancel)
+            const productModal = document.getElementById('productModal');
+            const closeProductModal = document.getElementById('closeProductModal');
+            const cancelProdModal = document.getElementById('cancelProdModal');
+            const saveProdModal = document.getElementById('saveProdModal');
+            if(closeProductModal) closeProductModal.addEventListener('click', ()=>{ window.closeModal(productModal); });
+            if(cancelProdModal) cancelProdModal.addEventListener('click', ()=>{ window.closeModal(productModal); });
+            if(saveProdModal) saveProdModal.addEventListener('click', async ()=>{
+              const id = document.getElementById('editProdId').value;
+              const desc = document.getElementById('editProdDesc').value.trim();
+              const price = parseFloat(document.getElementById('editProdPrice').value) || 0;
+              try{
+                const r = await fetch(`/api/productos/${id}`, { method:'PUT', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ description: desc, price_usd: price }) });
+                const j = await r.json();
+                if(j.ok){ window.showToast('Producto actualizado','success'); window.closeModal(productModal); loadProducts(); }
+                else window.showToast('Error al actualizar','error');
+              }catch(e){ window.showToast('Error al actualizar','error'); }
+            });
+            // edit handler opens modal
+            productsTbody.querySelectorAll('.editProd').forEach(b=> b.addEventListener('click', (e)=>{
+              const id = b.dataset.id;
+              const code = b.dataset.code;
+              const desc = b.dataset.desc;
+              const price = b.dataset.price;
+              // fill modal fields
+              const modal = document.getElementById('productModal');
+              const editId = document.getElementById('editProdId');
+              const editCode = document.getElementById('editProdCode');
+              const editDesc = document.getElementById('editProdDesc');
+              const editPrice = document.getElementById('editProdPrice');
+              editId.value = id;
+              editCode.value = code;
+              editDesc.value = desc;
+              editPrice.value = price;
+              window.openModal(modal, b);
             }));
           } else {
             productsTbody.innerHTML = '<tr><td colspan="6">No hay productos</td></tr>';
@@ -804,12 +940,17 @@ const title = 'Dashboard';
       }
 
       addBtn.addEventListener('click', async ()=>{
+        // limpiar el campo antes de crear para evitar valores antiguos
+        if(generatedCode) generatedCode.value = '';
         const payload = { description: newDesc.value.trim(), price_usd: parseFloat(newPrice.value)||0 };
         if(!payload.description) return window.showToast('Descripción requerida','warning');
         try{
           const r = await fetch('/api/productos', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(payload) });
           const j = await r.json();
-          if(j.ok){ newDesc.value=''; newPrice.value='0.00'; window.showToast(`Producto creado: ${j.product_code}`,'success'); loadProducts(); }
+          if(j.ok){ newDesc.value=''; newPrice.value='0.00'; if(generatedCode) generatedCode.value = j.product_code || ''; window.showToast(`Producto creado: ${j.product_code}`,'success');
+            // dejar el código visible unos segundos y luego limpiar
+            setTimeout(()=>{ if(generatedCode) generatedCode.value = ''; }, 5000);
+            loadProducts(); }
           else window.showToast('Error: ' + (j.error||''),'error');
         }catch(err){ window.showToast('Error al crear producto','error'); }
       });
@@ -817,6 +958,8 @@ const title = 'Dashboard';
       // load when entering view
       navLinks.forEach(a=>{ if(a.dataset.view === 'inventario') a.addEventListener('click', ()=> setTimeout(loadProducts, 150)); });
       if(location.hash.replace('#','') === 'inventario') loadProducts();
+      // expose for mobile menu and global calls
+      try{ window.loadProducts = loadProducts; }catch(e){}
     })();
 
     // --- Clientes CRUD ---
@@ -824,9 +967,21 @@ const title = 'Dashboard';
       const clientsTbody = document.querySelector('#clientsTable tbody');
       const addClientBtn = document.getElementById('addClient');
       const clientName = document.getElementById('clientName');
-      const clientRif = document.getElementById('clientRif');
+      const clientRifType = document.getElementById('clientRifType');
+      const clientRifNumber = document.getElementById('clientRifNumber');
       const clientPhone = document.getElementById('clientPhone');
       const clientAddress = document.getElementById('clientAddress');
+
+      // phone formatting: (412)-7307933 -> (ddd)-xxxxxxx
+      function formatPhoneRaw(v){
+        const digits = String(v||'').replace(/\D/g,'');
+        if(digits.length <= 3) return `(${digits})-`;
+        const d = digits.slice(0,3);
+        const rest = digits.slice(3,10);
+        return `(${d})-${rest}`;
+      }
+      clientPhone.addEventListener('input', (e)=>{ const d = e.target.value.replace(/\D/g,''); e.target.value = formatPhoneRaw(d); });
+      clientPhone.addEventListener('blur', (e)=>{ e.target.value = formatPhoneRaw(e.target.value); });
 
       async function loadClients(){
         try{
@@ -836,24 +991,79 @@ const title = 'Dashboard';
           if(j.ok && Array.isArray(j.data)){
             j.data.forEach(c => {
               const tr = document.createElement('tr');
-              tr.innerHTML = `<td>${c.id}</td><td>${c.name}</td><td>${c.rif_ci||''}</td><td>${c.phone||''}</td><td>${c.address||''}</td><td><button class="editClient" data-id="${c.id}">Editar</button> <button class="delClient" data-id="${c.id}">Eliminar</button></td>`;
+              tr.innerHTML = `<td>${c.id}</td><td>${c.name}</td><td>${c.rif_ci||''}</td><td>${c.phone||''}</td><td>${c.address||''}</td><td><button class="editClient btn-success" data-id="${c.id}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:6px"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Editar</button> <button class="delClient btn-danger" data-id="${c.id}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:6px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>Eliminar</button></td>`;
               clientsTbody.appendChild(tr);
             });
             clientsTbody.querySelectorAll('.delClient').forEach(b=> b.addEventListener('click', async ()=>{
               const id = b.dataset.id;
-              if(!confirm('Eliminar cliente?')) return;
+              if(!(await showConfirm('Eliminar cliente?'))) return;
               try{ const r = await fetch(`/api/clientes/${id}`, { method:'DELETE' }); const j = await r.json(); if(j.ok){ window.showToast('Cliente eliminado','success'); loadClients(); } else window.showToast('Error al eliminar','error'); }catch(e){ window.showToast('Error al eliminar','error'); }
             }));
+            // edit via modal: attach handlers that open the client modal
             clientsTbody.querySelectorAll('.editClient').forEach(b=> b.addEventListener('click', ()=>{
-              const id = b.dataset.id; const row = b.closest('tr'); if(row.dataset.editing) return; row.dataset.editing='1';
-              const name = row.children[1].textContent; const rif = row.children[2].textContent; const phone = row.children[3].textContent; const addr = row.children[4].textContent;
-              row.innerHTML = `<td>${id}</td><td><input class="inline-name" value="${name}" style="width:220px"/></td><td><input class="inline-rif" value="${rif}" style="width:120px"/></td><td><input class="inline-phone" value="${phone}" style="width:120px"/></td><td><input class="inline-addr" value="${addr}" style="width:100%"/></td><td><button class="saveClient">Guardar</button> <button class="cancelClient">Cancelar</button></td>`;
-              row.querySelector('.cancelClient').addEventListener('click', ()=> loadClients());
-              row.querySelector('.saveClient').addEventListener('click', async ()=>{
-                const nn = row.querySelector('.inline-name').value.trim(); const nr = row.querySelector('.inline-rif').value.trim(); const np = row.querySelector('.inline-phone').value.trim(); const na = row.querySelector('.inline-addr').value.trim();
-                try{ const r = await fetch(`/api/clientes/${id}`, { method:'PUT', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ name: nn, rif_ci: nr, phone: np, address: na }) }); const j = await r.json(); if(j.ok){ window.showToast('Cliente actualizado','success'); loadClients(); } else window.showToast('Error al actualizar','error'); }catch(e){ window.showToast('Error al actualizar','error'); }
-              });
+              const id = b.dataset.id;
+              // prepare modal elements
+              const modal = document.getElementById('clientModal');
+              const editId = document.getElementById('editClientId');
+              const editName = document.getElementById('editClientName');
+              const editRifType = document.getElementById('editClientRifType');
+              const editRifNumber = document.getElementById('editClientRifNumber');
+              const editPhone = document.getElementById('editClientPhone');
+              const editAddr = document.getElementById('editClientAddress');
+              // fill fields from row data
+              const row = b.closest('tr');
+              const name = row.children[1].textContent || '';
+              const rifFull = row.children[2].textContent || '';
+              const phone = row.children[3].textContent || '';
+              const addr = row.children[4].textContent || '';
+              // split rifFull
+              let rtype = '';
+              let rnum = rifFull;
+              const m = rifFull.match(/^\s*([VEJG])\-?\s*(\d+)$/i);
+              if(m){ rtype = m[1].toUpperCase(); rnum = m[2]; }
+              editId.value = id;
+              editName.value = name;
+              editRifType.value = rtype || 'V';
+              editRifNumber.value = rnum || '';
+              editPhone.value = phone || '';
+              editAddr.value = addr || '';
+              window.openModal(modal, b);
             }));
+            // ensure modal handlers are attached once
+            (function(){
+              const modal = document.getElementById('clientModal');
+              if(!modal) return;
+              const closeBtn = document.getElementById('closeClientModal');
+              const cancelBtn = document.getElementById('cancelClientModal');
+              const saveBtn = document.getElementById('saveClientModal');
+              if(closeBtn) closeBtn.addEventListener('click', ()=>{ window.closeModal(modal); });
+              if(cancelBtn) cancelBtn.addEventListener('click', ()=>{ window.closeModal(modal); });
+              if(saveBtn) saveBtn.addEventListener('click', async ()=>{
+                const id = document.getElementById('editClientId').value;
+                const name = document.getElementById('editClientName').value.trim();
+                const rt = document.getElementById('editClientRifType').value;
+                const rn = document.getElementById('editClientRifNumber').value.trim();
+                const rif_ci = (rt && rn) ? `${rt}-${rn}` : rn;
+                const phone = document.getElementById('editClientPhone').value.trim();
+                const addr = document.getElementById('editClientAddress').value.trim();
+                if(!name) return window.showToast('Nombre requerido','warning');
+                if(!/^\(\d{3}\)-\d{7}$/.test(phone)) return window.showToast('Teléfono debe ser formato (DDD)-XXXXXXX','warning');
+                try{
+                  const r = await fetch(`/api/clientes/${id}`, { method:'PUT', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ name, rif_ci, phone, address: addr }) });
+                  const j = await r.json();
+                  if(j.ok){ window.showToast('Cliente actualizado','success'); window.closeModal(modal); loadClients(); }
+                  else window.showToast('Error al actualizar','error');
+                }catch(e){ window.showToast('Error al actualizar','error'); }
+              });
+              // attach phone formatter to modal phone input
+              try{
+                const editPhoneInput = document.getElementById('editClientPhone');
+                if(editPhoneInput){
+                  editPhoneInput.addEventListener('input', (e)=>{ const d = e.target.value.replace(/\D/g,''); e.target.value = formatPhoneRaw(d); });
+                  editPhoneInput.addEventListener('blur', (e)=>{ e.target.value = formatPhoneRaw(e.target.value); });
+                }
+              }catch(e){}
+            })();
           } else {
             clientsTbody.innerHTML = '<tr><td colspan="6">No hay clientes</td></tr>';
           }
@@ -861,12 +1071,17 @@ const title = 'Dashboard';
       }
 
       addClientBtn.addEventListener('click', async ()=>{
-        const payload = { name: clientName.value.trim(), rif_ci: clientRif.value.trim(), phone: clientPhone.value.trim(), address: clientAddress.value.trim() };
-        if(!payload.name) return alert('Nombre requerido');
+        const nameVal = clientName.value.trim();
+        const rifVal = (clientRifType.value && clientRifNumber.value) ? `${clientRifType.value}-${clientRifNumber.value.trim()}` : clientRifNumber.value.trim();
+        const phoneVal = clientPhone.value.trim();
+        const addressVal = clientAddress.value.trim();
+        if(!nameVal) return alert('Nombre requerido');
+        if(!/^\(\d{3}\)-\d{7}$/.test(phoneVal)) return alert('Teléfono debe tener formato (DDD)-XXXXXXX');
+        const payload = { name: nameVal, rif_ci: rifVal, phone: phoneVal, address: addressVal };
         try{
           const r = await fetch('/api/clientes', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(payload) });
           const j = await r.json();
-          if(j.ok){ clientName.value=''; clientRif.value=''; clientPhone.value=''; clientAddress.value=''; loadClients(); }
+          if(j.ok){ clientName.value=''; clientRifNumber.value=''; clientPhone.value=''; clientAddress.value=''; loadClients(); }
           else alert('Error: ' + (j.error||''));
         }catch(err){ alert('Error al crear cliente'); }
       });
@@ -874,6 +1089,7 @@ const title = 'Dashboard';
       // populate when entering view
       navLinks.forEach(a=>{ if(a.dataset.view === 'clientes') a.addEventListener('click', ()=> setTimeout(loadClients, 150)); });
       if(location.hash.replace('#','') === 'clientes') loadClients();
+      try{ window.loadClients = loadClients; }catch(e){}
     })();
 
     // --- Documentos list & detail handling ---
@@ -896,7 +1112,7 @@ const title = 'Dashboard';
               const tr = document.createElement('tr');
               const bcvBadge = d.bcv_rate ? `<span class="bcv-badge" data-bcv-rate="${d.bcv_rate}" data-bcv-date="${d.created_at}" style="background:#fde68a;color:#92400e;padding:4px 8px;border-radius:999px;font-size:12px;margin-left:8px;cursor:default">BCV</span>` : '';
               const usdBadge = (d.currency && d.currency.toUpperCase() === 'USD') ? `<span class="usd-badge" style="background:#bbf7d0;color:#064e3b;padding:4px 8px;border-radius:999px;font-size:12px;margin-left:8px">USD</span>` : '';
-              tr.innerHTML = `<td>${d.id}</td><td>${d.tipo}</td><td>${d.doc_number}${usdBadge}${bcvBadge}</td><td>${d.cliente||''}</td><td>${Number(d.total_usd).toFixed(2)}</td><td>${new Date(d.created_at).toLocaleString()}</td><td><button class="viewDoc" data-id="${d.id}">Ver</button></td>`;
+              tr.innerHTML = `<td>${d.id}</td><td>${d.tipo}</td><td>${d.doc_number}${usdBadge}${bcvBadge}</td><td>${d.cliente||''}</td><td>${Number(d.total_usd).toFixed(2)}</td><td>${new Date(d.created_at).toLocaleString()}</td><td><button class="viewDoc btn-success" data-id="${d.id}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:6px"><path d="M2 12s4-8 10-8 10 8 10 8-4 8-10 8S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Ver</button></td>`;
               docsTableBody.appendChild(tr);
             });
             // attach tooltip handlers to BCV badges
@@ -938,45 +1154,126 @@ const title = 'Dashboard';
 
       async function openDoc(id){
         try{
+          console.log('openDoc', id);
+          // ensure modal shows a loading state immediately so user sees feedback
+          currentDocId = id;
+          modalDocNumber.textContent = `Cargando...`;
+          modalBody.innerHTML = `<div style="padding:12px">Cargando documento...</div>`;
+          window.openModal(docModal, null);
+
           const r = await fetch(`/api/documentos/${id}`);
           const j = await r.json();
           if(j.ok){
-            currentDocId = id;
             modalDocNumber.textContent = j.data.doc_number || `Documento ${id}`;
-            let html = `<div><strong>Tipo:</strong> ${j.data.tipo} — <strong>Cliente:</strong> ${j.data.cliente||''}</div>`;
-            const docCurrency = (j.data.currency||'USD').toUpperCase();
-            html += `<table style="width:100%;margin-top:8px;border-collapse:collapse"><thead><tr style="text-align:left;border-bottom:1px solid #eef2f6"><th>Producto</th><th>Cantidad</th><th>P.Unit</th><th>Total</th></tr></thead><tbody>`;
-            if(docCurrency === 'USD'){
-              j.data.items.forEach(it => { html += `<tr><td>${it.description||''}</td><td>${it.quantity}</td><td>${Number(it.unit_price_usd).toFixed(4)}</td><td>${Number(it.total_usd).toFixed(2)}</td></tr>`; });
+            // Build a printable 'Nota de Entrega' HTML similar to the reference image
+            const currency = (j.data.currency||'USD').toUpperCase();
+            const rate = j.data.bcv_rate ? Number(j.data.bcv_rate) : (j.data.exchange_rate ? Number(j.data.exchange_rate) : null);
+            function fmt(n, decimals=2){ return Number(n||0).toFixed(decimals); }
+            let itemsHtml = '';
+            j.data.items.forEach(it => {
+              // normalize possible field names
+              let code = (it.product_code || it.codigo || it.code || '').toString().trim();
+              let desc = (it.description || it.nombre || it.desc || '').toString().trim();
+              // If no explicit code, try to extract one from the start of the description
+              if(!code && desc){
+                // common patterns: "P-000004 - BRAGA", "P000004: BRAGA", "P000004/ BRAGA"
+                const m = desc.match(/^\s*([A-Za-z0-9\-_.]+)\s*[-:\/]+\s*(.*)$/);
+                if(m){ code = m[1].trim(); desc = (m[2] || '').trim(); }
+              }
+              // If code exists and description still contains the code at the start, remove it (safety)
+              if(code && desc){
+                const esc = code.replace(/[.*+?^${}()|[\\]\/\\]/g,'\\$&');
+                const pattern = new RegExp('^\\s*' + esc + "\\s*[-:\\/]?\\s*", 'i');
+                desc = desc.replace(pattern, '').trim();
+              }
+              if(currency === 'USD' && !j.data.bcv_rate){
+                itemsHtml += `<tr><td style="border:1px solid #000;padding:6px">${code}</td><td style="border:1px solid #000;padding:6px">${desc}</td><td style="border:1px solid #000;padding:6px;text-align:center">${fmt(it.quantity,2)}</td><td style="border:1px solid #000;padding:6px;text-align:right">$ ${fmt(it.unit_price_usd,2)}</td><td style="border:1px solid #000;padding:6px;text-align:right">$ ${fmt(it.total_usd,2)}</td></tr>`;
+              } else if(j.data.bcv_rate){
+                const unit = Number(it.unit_price_bsf || (it.unit_price_usd * rate));
+                const total = Number((it.total_bsf !== undefined) ? it.total_bsf : (it.total_usd * rate));
+                itemsHtml += `<tr><td style="border:1px solid #000;padding:6px">${code}</td><td style="border:1px solid #000;padding:6px">${desc}</td><td style="border:1px solid #000;padding:6px;text-align:center">${fmt(it.quantity,2)}</td><td style="border:1px solid #000;padding:6px;text-align:right">Bs.F ${fmt(unit,2)}</td><td style="border:1px solid #000;padding:6px;text-align:right">Bs.F ${fmt(total,2)}</td></tr>`;
+              } else {
+                itemsHtml += `<tr><td style="border:1px solid #000;padding:6px">${code}</td><td style="border:1px solid #000;padding:6px">${desc}</td><td style="border:1px solid #000;padding:6px;text-align:center">${fmt(it.quantity,2)}</td><td style="border:1px solid #000;padding:6px;text-align:right">$ ${fmt(it.unit_price_usd,2)}</td><td style="border:1px solid #000;padding:6px;text-align:right">$ ${fmt(it.total_usd,2)}</td></tr>`;
+              }
+            });
+
+            let totalsHtml = '';
+            if(currency === 'USD' && !j.data.bcv_rate){
+              totalsHtml = `<div style="text-align:right;padding:8px;border:1px solid #000;max-width:220px;margin-left:auto"><div>SUB $ ${fmt(j.data.subtotal_usd,2)}</div><div>IVA ${ (j.data.currency && j.data.currency.toUpperCase()==='USD') ? '0' : '16' }%: $ ${fmt(j.data.tax_usd,2)}</div><div style="font-weight:700;margin-top:6px">TOTAL $ ${fmt(j.data.total_usd,2)}</div></div>`;
+            } else if(j.data.bcv_rate){
+              const sb = (j.data.subtotal_bsf !== undefined) ? j.data.subtotal_bsf : (Number(j.data.subtotal_usd||0) * rate);
+              const tb = (j.data.tax_bsf !== undefined) ? j.data.tax_bsf : (Number(j.data.tax_usd||0) * rate);
+              const totb = (j.data.total_bsf !== undefined) ? j.data.total_bsf : (Number(j.data.total_usd||0) * rate);
+              totalsHtml = `<div style="text-align:right;padding:8px;border:1px solid #000;max-width:220px;margin-left:auto"><div>SUB Bs.F ${fmt(sb,2)}</div><div>IVA 16%: Bs.F ${fmt(tb,2)}</div><div style="font-weight:700;margin-top:6px">TOTAL Bs.F ${fmt(totb,2)}</div></div>`;
             } else {
-              // show BSF prices with 2 decimals when using BCV/ves
-              j.data.items.forEach(it => { html += `<tr><td>${it.description||''}</td><td>${it.quantity}</td><td>${Number(it.unit_price_bsf || (it.unit_price_usd * (j.data.bcv_rate||j.data.exchange_rate||1))).toFixed(2)}</td><td>${Number(it.total_bsf || (it.total_usd * (j.data.bcv_rate||j.data.exchange_rate||1))).toFixed(2)}</td></tr>`; });
+              totalsHtml = `<div style="text-align:right;padding:8px;border:1px solid #000;max-width:220px;margin-left:auto"><div>SUB $ ${fmt(j.data.subtotal_usd||0,2)}</div><div>IVA 16%: $ ${fmt(j.data.tax_usd||0,2)}</div><div style="font-weight:700;margin-top:6px">TOTAL $ ${fmt(j.data.total_usd||0,2)}</div></div>`;
             }
-            html += `</tbody></table>`;
-            html += `<div style="margin-top:8px"><strong>Subtotal USD:</strong> ${Number(j.data.subtotal_usd).toFixed(2)} — <strong>IVA:</strong> ${Number(j.data.tax_usd).toFixed(2)} — <strong>Total USD:</strong> ${Number(j.data.total_usd).toFixed(2)}</div>`;
-            if(j.data.subtotal_bsf !== undefined){
-              html += `<div style="margin-top:6px;color:var(--muted)"><strong>Subtotal Bs.F:</strong> ${Number(j.data.subtotal_bsf).toFixed(2)} — <strong>IVA Bs.F:</strong> ${Number(j.data.tax_bsf).toFixed(2)} — <strong>Total Bs.F:</strong> ${Number(j.data.total_bsf).toFixed(2)}</div>`;
-            }
-            if(j.data.bcv_rate){
-              html += `<div style="margin-top:6px;color:var(--muted)"><strong>Tasa BCV guardada:</strong> ${Number(j.data.bcv_rate).toFixed(6)}</div>`;
-            }
-            modalBody.innerHTML = html;
-            docModal.style.display = 'flex';
-            docModal.setAttribute('aria-hidden','false');
+
+            // prefer possible field names for client phone/address and rif
+            const clientName = j.data.cliente || j.data.nombre || j.data.client_name || '';
+            const clientRif = j.data.cliente_rif || j.data.rif || j.data.rif_ci || '';
+            const clientPhone = j.data.cliente_phone || j.data.phone || j.data.telefono || j.data.tel || j.data.contact_phone || '';
+            const clientAddress = j.data.cliente_address || j.data.address || j.data.direccion || j.data.contact_address || '';
+            const clientHtml = `
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+                <div style="flex:1;font-size:14px;line-height:1.35">
+                  <div><strong>Empresa:</strong> ${clientName || '&mdash;'}</div>
+                  <div><strong>RIF:</strong> ${clientRif || '&mdash;'}</div>
+                  <div><strong>Teléfono:</strong> ${clientPhone || '&mdash;'}</div>
+                  <div><strong>Dirección:</strong> ${clientAddress || '&mdash;'}</div>
+                </div>
+                <div style="text-align:right">
+                  <div><strong>Fecha:</strong> ${new Date(j.data.created_at).toLocaleDateString()}</div>
+                  <div><strong>Nota Nº:</strong> ${j.data.doc_number||''}</div>
+                </div>
+              </div>
+            `;
+
+            const logoUrl = (typeof location !== 'undefined') ? (location.origin + '/src/img/logo.png') : '/src/img/logo.png'; // usar la ruta proporcionada por el usuario
+            const printable = `
+              <div style="font-family:Arial,Helvetica,sans-serif;color:#111">
+                <div style="text-align:center;margin-bottom:8px"><img src="${logoUrl}" alt="logo" style="max-height:80px"/></div>
+                <div style="text-align:center;font-weight:700;margin-bottom:6px">J-40048985-7</div>
+                <h2 style="text-align:center;margin:6px 0">Nota de Entrega</h2>
+                <div style="border:1px solid #000;padding:10px;margin-bottom:12px">${clientHtml}</div>
+                <table style="width:100%;border-collapse:collapse;margin-bottom:12px"><thead><tr style="background:#f3f3f3"><th style="border:1px solid #000;padding:8px">CODIGO</th><th style="border:1px solid #000;padding:8px">DESCRIPCIÓN</th><th style="border:1px solid #000;padding:8px;text-align:center">CANT</th><th style="border:1px solid #000;padding:8px;text-align:right">PRECIO UNITARIO</th><th style="border:1px solid #000;padding:8px;text-align:right">TOTAL</th></tr></thead><tbody>${itemsHtml}</tbody></table>
+                ${totalsHtml}
+                <!-- Observaciones: incluir nota sobre IVA si el documento está en USD -->
+                ${(() => {
+                  const obs = (currency === 'USD') ? 'Estos precios no incluyen IVA' : (j.data.observaciones || '');
+                  const obsHtml = obs ? `<div style="font-size:13px;color:#111">${obs}</div>` : '<div style="height:1px">&nbsp;</div>';
+                  return `<div style="margin-top:12px;border:1px solid #000;padding:8px;min-height:60px"><strong>OBSERVACIONES:</strong>${obsHtml}</div>`;
+                })()}
+                <div style="margin-top:14px;font-size:12px;color:#666;text-align:center;border-top:1px solid #ddd;padding-top:8px">
+                  <div>Av 18 La limpia Sector Miranda la Florida casa 95A-78 - Maracaibo Edo. Zulia</div>
+                  <div>Correo: confecciones.hermanos.cantos@hotmail.com &nbsp; / &nbsp; IG: @confeccioneshermanoscantos</div>
+                  <div>TlF: 0424-6550993 / 0424-6112097</div>
+                </div>
+              </div>
+            `;
+
+            modalBody.innerHTML = printable + `<div style="display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:12px"><div class="print-instruction" style="font-size:13px;color:#666">Antes de imprimir: desmarque 'Encabezados y pies' en la ventana de impresión para eliminar fecha/URL/página.</div><div style="display:flex;gap:8px;justify-content:flex-end"><button id="printDoc" class="btn-primary">Imprimir</button></div></div>`;
+            // attach print handler
+            setTimeout(()=>{
+              const printBtn = document.getElementById('printDoc');
+              if(printBtn) printBtn.addEventListener('click', ()=>{ const w = window.open('','_blank'); w.document.write(`<html><head><title>${j.data.doc_number}</title></head><body>${printable}</body></html>`); w.document.close(); w.focus(); w.print(); });
+            }, 60);
+            // modal ya se abrió y el contenido fue establecido en 'modalBody' arriba
           } else {
-            alert('No se pudo cargar el documento');
+            console.warn('openDoc: respuesta OK=false', j);
+            modalBody.innerHTML = `<div style="color:#b91c1c;padding:12px">No se pudo cargar el documento: ${j.error||'respuesta inválida'}</div>`;
           }
-        }catch(err){ console.error(err); alert('Error al cargar documento'); }
+        }catch(err){ console.error('openDoc error', err); modalBody.innerHTML = `<div style="color:#b91c1c;padding:12px">Error al cargar documento</div>`; }
       }
 
-      closeDocModal.addEventListener('click', ()=>{ docModal.style.display = 'none'; docModal.setAttribute('aria-hidden','true'); currentDocId = null; });
+  closeDocModal.addEventListener('click', ()=>{ window.closeModal(docModal); currentDocId = null; });
       deleteDocBtn.addEventListener('click', async ()=>{
         if(!currentDocId) return;
-        if(!confirm('¿Eliminar este documento? Esta acción no se puede deshacer.')) return;
+        if(!(await showConfirm('¿Eliminar este documento? Esta acción no se puede deshacer.'))) return;
         try{
           const r = await fetch(`/api/documentos/${currentDocId}`, { method:'DELETE' });
           const j = await r.json();
-          if(j.ok){ docModal.style.display='none'; loadDocs(); (window.showToast||(()=>{}))('Documento eliminado','success'); }
+          if(j.ok){ window.closeModal(docModal); loadDocs(); (window.showToast||(()=>{}))('Documento eliminado','success'); }
           else (window.showToast||(()=>{}))('Error al eliminar','error');
         }catch(err){ (window.showToast||(()=>{}))('Error al eliminar','error'); }
       });
@@ -985,10 +1282,12 @@ const title = 'Dashboard';
       navLinks.forEach(a=>{ if(a.dataset.view === 'documentos') a.addEventListener('click', ()=> setTimeout(loadDocs, 150)); });
       // if loaded from hash
       if(location.hash.replace('#','') === 'documentos') loadDocs();
+      try{ window.loadDocs = loadDocs; }catch(e){}
     })();
 
     </script>
     <style>
+      @media print{ .print-instruction{ display:none !important } }
       /* Mobile menu link styles: full-width, large touch area, icon + label */
       #mobileMenu .mobile-link{display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;color:var(--text);text-decoration:none;margin:6px 4px;transition:background 140ms,transform 140ms;outline:none}
       #mobileMenu .mobile-link svg{width:20px;height:20px;flex-shrink:0;opacity:0.95}

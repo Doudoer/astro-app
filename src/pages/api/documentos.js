@@ -67,12 +67,18 @@ export async function POST({ request }){
       const lineTotal = q * up - disc;
       subtotal += lineTotal;
     }
-    const tax = +(subtotal * 0.16).toFixed(2);
+    // Do NOT apply IVA when document is in USD
+    let tax = 0;
+    if(((currency||'').toUpperCase()) !== 'USD'){
+      tax = +(subtotal * 0.16).toFixed(2);
+    }
     const total = +(subtotal + tax).toFixed(2);
 
-  const subtotal_bsf = +(subtotal * Number(exchange_rate)).toFixed(2);
-  const tax_bsf = +(tax * Number(exchange_rate)).toFixed(2);
-  const total_bsf = +(total * Number(exchange_rate)).toFixed(2);
+    // use stored BCV rate when available for Bs.F conversions, otherwise use exchange_rate
+    const rateForBsf = (bcv_rate_to_store != null) ? Number(bcv_rate_to_store) : Number(exchange_rate || 1);
+    const subtotal_bsf = +(subtotal * rateForBsf).toFixed(2);
+    const tax_bsf = +(tax * rateForBsf).toFixed(2);
+    const total_bsf = +(total * rateForBsf).toFixed(2);
   const [res] = await conn.execute('INSERT INTO documents (doc_number, tipo, cliente_id, currency, exchange_rate, bcv_rate, subtotal_usd, tax_usd, total_usd, subtotal_bsf, tax_bsf, total_bsf) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [docNumber, tipo, cliente_id, currency, exchange_rate, bcv_rate_to_store, subtotal.toFixed(2), tax.toFixed(2), total.toFixed(2), subtotal_bsf, tax_bsf, total_bsf]);
     const docId = res.insertId;
 
@@ -82,8 +88,8 @@ export async function POST({ request }){
       const up = Number(it.unit_price_usd || 0);
       const disc = Number(it.discount || 0);
   const lineTotal = +(q * up - disc).toFixed(2);
-  const unit_bsf = +(up * Number(exchange_rate)).toFixed(4);
-  const total_bsf_line = +(lineTotal * Number(exchange_rate)).toFixed(2);
+  const unit_bsf = +(up * rateForBsf).toFixed(4);
+  const total_bsf_line = +(lineTotal * rateForBsf).toFixed(2);
   await conn.execute('INSERT INTO document_items (document_id, product_id, description, quantity, unit_price_usd, discount, total_usd, unit_price_bsf, total_bsf) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [docId, it.product_id || null, it.description || null, q, up, disc, lineTotal, unit_bsf, total_bsf_line]);
     }
 
