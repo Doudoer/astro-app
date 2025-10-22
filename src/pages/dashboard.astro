@@ -234,7 +234,7 @@ const title = 'Dashboard';
             </div>
             <div style="width:120px">
               <label for="qty">Cantidad</label>
-              <input id="qty" type="number" step="0.01" value="1" style="width:100%;padding:10px;margin-top:6px;border:1px solid #e6e7eb;border-radius:8px" />
+              <input id="qty" type="number" step="1" min="1" value="1" style="width:100%;padding:10px;margin-top:6px;border:1px solid #e6e7eb;border-radius:8px" />
             </div>
             <div style="width:140px">
               <label for="unitPrice">P. Unit (USD)</label>
@@ -1033,16 +1033,18 @@ const title = 'Dashboard';
       }
 
   addItemBtn.addEventListener('click', ()=>{
-    const q = parseFloat(qtyInput.value || '0');
+    // enforce integer quantities
+    const q = parseInt(qtyInput.value || '0', 10);
+    const qtyInt = Math.max(1, isNaN(q) ? 0 : q);
     const up = parseFloat(unitPriceInput.value || '0');
-  if(q <= 0 || up <= 0) return (window.showToast || (()=>alert('Cantidad y precio deben ser mayores que cero')))('Cantidad y precio deben ser mayores que cero','error');
+  if(qtyInt <= 0 || up <= 0) return (window.showToast || (()=>alert('Cantidad y precio deben ser mayores que cero')))('Cantidad y precio deben ser mayores que cero','error');
     const selectedId = productSearch.dataset.selectedId;
     let found = null;
     if(selectedId){ found = productsCache.find(p => String(p.id) === String(selectedId)); }
     if(!found) found = findProduct(productSearch.value.trim());
     const desc = found ? `${found.product_code} - ${found.description}` : productSearch.value.trim();
-    const total = +(q * up).toFixed(2);
-    const item = { product_id: found ? found.id : null, description: desc, quantity: q, unit_price_usd: up, discount: 0, total };
+    const total = +(qtyInt * up).toFixed(2);
+    const item = { product_id: found ? found.id : null, description: desc, quantity: qtyInt, unit_price_usd: up, discount: 0, total };
   createRow(item);
   recalc();
   refreshRows();
@@ -1059,7 +1061,7 @@ const title = 'Dashboard';
         itemsTbody.querySelectorAll('tr').forEach(tr => {
           const cols = tr.children;
           const description = cols[0].textContent.trim();
-          const quantity = parseFloat(cols[1].textContent.trim());
+          const quantity = parseInt(cols[1].textContent.trim(), 10) || 0;
           // read unit price in USD from data attribute to avoid reading Bs.F displayed value
           const unit_price_usd = parseFloat(tr.dataset.unitUsd || cols[2].textContent.trim());
           const discount = parseFloat(cols[3].textContent.trim()) || 0;
@@ -1556,17 +1558,23 @@ const title = 'Dashboard';
       }
 
   closeDocModal.addEventListener('click', ()=>{ window.closeModal(docModal); currentDocId = null; });
+      // delete handler: only attach for admin users; hide button for non-admins
       if(window.currentUserIsAdmin){
-        deleteDocBtn.addEventListener('click', async ()=>{
-          if(!currentDocId) return;
-          if(!(await showConfirm('¿Eliminar este documento? Esta acción no se puede deshacer.'))) return;
-          try{
-            const r = await fetch(`/api/documentos/${currentDocId}`, { method:'DELETE' });
-            const j = await r.json();
-            if(j.ok){ window.closeModal(docModal); loadDocs(); (window.showToast||(()=>{}))('Documento eliminado','success'); }
-            else (window.showToast||(()=>{}))('Error al eliminar','error');
-          }catch(err){ (window.showToast||(()=>{}))('Error al eliminar','error'); }
-        });
+        if(deleteDocBtn){
+          deleteDocBtn.style.display = '';
+          deleteDocBtn.addEventListener('click', async ()=>{
+            if(!currentDocId) return;
+            if(!(await showConfirm('¿Eliminar este documento? Esta acción no se puede deshacer.'))) return;
+            try{
+              const r = await fetch(`/api/documentos/${currentDocId}`, { method:'DELETE' });
+              const j = await r.json();
+              if(j.ok){ window.closeModal(docModal); loadDocs(); (window.showToast||(()=>{}))('Documento eliminado','success'); }
+              else (window.showToast||(()=>{}))('Error al eliminar','error');
+            }catch(err){ (window.showToast||(()=>{}))('Error al eliminar','error'); }
+          });
+        }
+      } else {
+        try{ if(deleteDocBtn) deleteDocBtn.style.display = 'none'; }catch(e){}
       }
 
       // load on entering view

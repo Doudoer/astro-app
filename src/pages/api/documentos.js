@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
-import { requireAdmin } from './_auth.js';
+import { requireAuth } from './_auth.js';
 dotenv.config();
 
 export const prerender = false;
@@ -24,7 +24,8 @@ export async function GET(){
 
 // Expected body: { tipo: 'CT'|'ND', cliente_id, currency, exchange_rate, items: [{product_id, description, quantity, unit_price_usd, discount}] }
 export async function POST({ request }){
-  const auth = await requireAdmin(request);
+  // allow any authenticated user (role 'user' or 'admin') to create documents
+  const auth = await requireAuth(request);
   if(!auth.ok) return auth.response;
   const body = await request.json();
   const { tipo='CT', cliente_id=null, currency='USD', exchange_rate=1.0, bcv_rate=null, items=[] } = body;
